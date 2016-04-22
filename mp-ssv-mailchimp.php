@@ -89,4 +89,55 @@ function mp_ssv_get_merge_fields($listID) {
 
 	return $results;
 }
+
+function mp_ssv_update_mailchimp_member($user) {
+	$member = array();
+	$merge_fields = array();
+	$merge_fields['FNAME'] = get_user_meta($user->ID, "first_name", true);
+	$merge_fields['LNAME'] = get_user_meta($user->ID, "last_name", true);
+	$member["email_address"] = $user->user_email;
+	$member["status"] = "subscribed";
+	$member["merge_fields"] = $merge_fields;
+	
+	$apiKey = get_option('mp_ssv_mailchimp_api_key');
+	$listID = get_option('mailchimp_member_sync_list_id');
+	$memberId = md5(strtolower($member['email_address']));
+	$memberCenter = substr($apiKey,strpos($apiKey,'-')+1);
+	$url = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
+	$ch = curl_init($url);
+	
+	$json = json_encode($member);
+	
+	curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+	
+	$curl_results = json_decode(curl_exec($ch), true);
+	$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	curl_close($ch);
+	
+	return $httpCode;
+}
+
+function mp_ssv_get_member_fields_select($member_field_names, $selected_member_field_name, $disabled) {
+	?>
+	<select name="member_<?php echo $selected_member_field_name; ?>" <?php if ($disabled) { echo "disabled"; } ?>><option></option>
+		<?php
+		foreach ($member_field_names as $field) {
+			$field = json_decode(json_encode($field),true);
+			$name = stripslashes($field["meta_value"]);
+			if ($name == $selected_member_field_name) {
+				echo '<option value="'.$name.'" selected>'.$name.'</option>';
+			} else {
+				echo '<option value="'.$name.'">'.$name.'</option>';
+			}
+		}
+		?>
+	</select>
+	<?php
+}
 ?>
