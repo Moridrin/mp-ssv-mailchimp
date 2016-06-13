@@ -84,6 +84,15 @@ function mp_ssv_get_merge_fields($listID) {
 function mp_ssv_update_mailchimp_member($user) {
 	$member = array();
 	$merge_fields = array();
+	global $wpdb;
+	$table_name = $wpdb->prefix."mp_ssv_mailchimp_merge_fields";
+	$fields = $wpdb->get_results("SELECT * FROM $table_name");
+	foreach ($fields as $field) {
+		$field = json_decode(json_encode($field),true);
+		$member_field = stripslashes($field["member_tag"]);
+		$mailchimp_merge_tag = stripslashes($field["mailchimp_tag"]);
+		$merge_fields[$mailchimp_merge_tag] = get_user_meta($user->ID, $member_field, true);
+	}
 	$merge_fields['FNAME'] = get_user_meta($user->ID, "first_name", true);
 	$merge_fields['LNAME'] = get_user_meta($user->ID, "last_name", true);
 	$member["email_address"] = $user->user_email;
