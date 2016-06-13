@@ -19,22 +19,13 @@ function mp_ssv_register_mp_ssv_mailchimp(){
 }
 register_deactivation_hook( __FILE__, 'mp_ssv_register_mp_ssv_mailchimp' );
 
-function mp_ssv_get_member_fields_select_for_javascript($disabled, $fields_in_tab) {
+function mp_ssv_get_member_fields_select_for_javascript($disabled, $member_field_names) {
 	?><select name="member_' + id + '" <?php if ($disabled) { echo "disabled"; } ?>><option></option><?php
-	foreach ($fields_in_tab as $field) {
-		$field = json_decode(json_encode($field),true);
-		$database_component = stripslashes($field["component"]);
-		$title = stripslashes($field["title"]);
-		if (strpos($database_component, "name=\"") !== false) {
-			$identifier = preg_replace("/.*name=\"/","",stripslashes($database_component));
-			$identifier = preg_replace("/\".*/","",$identifier);
-			$identifier = strtolower($identifier);
-			echo "<option>".$identifier."</option>";
-		} else if (strpos($database_component, "select") !== false || strpos($database_component, "radio") !== false || strpos($database_component, "role checkbox") !== false) {
-			$identifier = strtolower(preg_replace('/[^A-Za-z0-9\-]/', '_', str_replace(" ", "_", $title)));
-			echo "<option>".$identifier."</option>";
+		foreach ($member_field_names as $field) {
+			$field = json_decode(json_encode($field),true);
+			$name = stripslashes($field["meta_value"]);
+			echo '<option value="'.$name.'">'.$name.'</option>';
 		}
-	}
 	?></select><?php
 }
 
@@ -98,16 +89,16 @@ function mp_ssv_update_mailchimp_member($user) {
 	$member["email_address"] = $user->user_email;
 	$member["status"] = "subscribed";
 	$member["merge_fields"] = $merge_fields;
-	
+
 	$apiKey = get_option('mp_ssv_mailchimp_api_key');
 	$listID = get_option('mailchimp_member_sync_list_id');
 	$memberId = md5(strtolower($member['email_address']));
 	$memberCenter = substr($apiKey,strpos($apiKey,'-')+1);
 	$url = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
 	$ch = curl_init($url);
-	
+
 	$json = json_encode($member);
-	
+
 	curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -115,11 +106,11 @@ function mp_ssv_update_mailchimp_member($user) {
 	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-	
+
 	$curl_results = json_decode(curl_exec($ch), true);
 	$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 	curl_close($ch);
-	
+
 	return $httpCode;
 }
 

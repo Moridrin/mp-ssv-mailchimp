@@ -7,6 +7,8 @@ function mp_ssv_mailchimp_settings_page_frontend_members_tab() {
 	$fields = $wpdb->get_results("SELECT * FROM $table_name");
 	$table_name = $wpdb->prefix."mp_ssv_frontend_members_field_meta";
 	$member_field_names = $wpdb->get_results("SELECT meta_value FROM $table_name WHERE meta_key = 'name'");
+	mp_ssv_print("SELECT meta_value FROM $table_name WHERE meta_key = 'name'");
+	mp_ssv_print($member_field_names);
 	?>
 	<br/>Add & Synchronize members to this MailChimp List.
 	<form method="post" action="#">
