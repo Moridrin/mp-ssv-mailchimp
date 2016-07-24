@@ -10,7 +10,7 @@
 * License URI: http://www.wtfpl.net/txt/copying/
 */
 
-include_once "options/options.php";
+require_once "options/options.php";
 
 function mp_ssv_register_mp_ssv_mailchimp(){
 	if (!is_plugin_active('mp-ssv-events/mp-ssv-events.php') && !is_plugin_active('mp-ssv-frontend-members/mp-ssv-frontend-members.php')) {
