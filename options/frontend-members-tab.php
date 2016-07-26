@@ -13,7 +13,7 @@ function mp_ssv_mailchimp_settings_page_frontend_members_tab() {
 		<table id="container" class="form-table">
 			<tr>
 				<th scope="row">List ID</th>
-				<td><input type="text" class="regular-text" name="mailchimp_member_sync_list_id" value="<?php echo get_option('mailchimp_member_sync_list_id'); ?>"/></td>
+                <td><input type="text" class="regular-text" name="mailchimp_member_sync_list_id" value="<?php echo get_option('mailchimp_member_sync_list_id'); ?>" title="List ID"/></td>
 			</tr>
 			<tr>
 				<th scope="row">Membber Field Name</th>
@@ -47,12 +47,13 @@ function mp_ssv_mailchimp_settings_page_frontend_members_tab() {
 		<button type="button" id="add_field_button" onclick="mp_ssv_add_new_field()">Add Field</button>
 		<?php submit_button(); ?>
 	</form>
-	<script src="https://code.jquery.com/jquery-2.2.0.js"></script>
-	<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="../../mp-ssv-frontend-members/include/jquery-2.2.0.js"></script>
+    <script src="../../mp-ssv-frontend-members/include/jquery-ui.js"></script>
 	<script>
 	function mp_ssv_add_new_field() {
 		var id = Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-		$("#container > tbody:last-child").append(
+        $("#container").find("> tbody:last-child").append(
+//		$("#container > tbody:last-child").append(
 			$('<tr id="' + id + '">').append(
 				$('<td>').append(
 					'<?php echo mp_ssv_get_member_fields_select_for_javascript(false, $member_field_names); ?>'

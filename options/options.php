@@ -52,14 +52,16 @@ function mp_ssv_mailchimp_settings_page_general() {
 			<tr>
 				<th scope="row">MailChimp API Key</th>
 				<td>
-					<input type="text" class="regular-text" name="mp_ssv_mailchimp_api_key" value="<?php echo get_option('mp_ssv_mailchimp_api_key'); ?>"/>
+                    <input type="text" class="regular-text" name="mp_ssv_mailchimp_api_key" value="<?php echo get_option('mp_ssv_mailchimp_api_key'); ?>" title="MailChimp API Key"/>
 				</td>
 			</tr>
 			<tr>
 				<th scope="row">Max Request</th>
 				<td>
-					<input type="number" class="regular-text" name="mp_ssv_mailchimp_max_request" value="<?php echo get_option('mp_ssv_mailchimp_max_request'); ?>" placeholder="10"/>
-					The maximum amount of *|MERGE|* tags returned by Mailchimp.
+                    <label>
+                        <input type="number" class="regular-text" name="mp_ssv_mailchimp_max_request" value="<?php echo get_option('mp_ssv_mailchimp_max_request'); ?>" placeholder="10"/>
+                        The maximum amount of *|MERGE|* tags returned by Mailchimp.
+                    </label>
 				</td>
 			</tr>
 		</table>
