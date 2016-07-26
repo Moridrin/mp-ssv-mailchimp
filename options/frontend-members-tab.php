@@ -53,7 +53,6 @@ function mp_ssv_mailchimp_settings_page_frontend_members_tab() {
 	function mp_ssv_add_new_field() {
 		var id = Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
         $("#container").find("> tbody:last-child").append(
-//		$("#container > tbody:last-child").append(
 			$('<tr id="' + id + '">').append(
 				$('<td>').append(
 					'<?php echo mp_ssv_get_member_fields_select_for_javascript(false, $member_field_names); ?>'
