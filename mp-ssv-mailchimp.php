@@ -142,7 +142,7 @@ function mp_ssv_update_mailchimp_member($user)
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
 
-//    $curl_results = json_decode(curl_exec($ch), true);
+    curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
