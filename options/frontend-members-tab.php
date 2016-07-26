@@ -47,8 +47,8 @@ function mp_ssv_mailchimp_settings_page_frontend_members_tab() {
 		<button type="button" id="add_field_button" onclick="mp_ssv_add_new_field()">Add Field</button>
 		<?php submit_button(); ?>
 	</form>
-    <script src="../../mp-ssv-frontend-members/include/jquery-2.2.0.js"></script>
-    <script src="../../mp-ssv-frontend-members/include/jquery-ui.js"></script>
+    <script src="<?php echo plugins_url(); ?>/mp-ssv-frontend-members/include/jquery-2.2.0.js"></script>
+    <script src="<?php echo plugins_url(); ?>/mp-ssv-frontend-members/include/jquery-ui.js"></script>
 	<script>
 	function mp_ssv_add_new_field() {
 		var id = Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
