@@ -100,7 +100,7 @@ function mp_ssv_get_merge_fields($listID)
     foreach ($curl_results as $result => $value) {
         $results[] = $value["tag"];
     }
-//    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
     return $results;
