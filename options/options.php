@@ -30,7 +30,7 @@ function mp_ssv_mailchimp_settings_page() {
 			<?php if (is_plugin_active('mp-ssv-events/mp-ssv-events.php')) { ?>
 				<a href="?page=mp-ssv-mailchimp-options&tab=events" class="nav-tab <?php if ($active_tab == "events") { echo "nav-tab-active"; } ?>">Events</a>
 			<?php } ?>
-            <a href="http://studentensurvival.com/mp-ssv/mp-ssv-mailchimp/" target="_blank" class="nav-tab">Help <img src="<?php echo plugin_dir_url('general/images/link-new-tab.png'); ?>link-new-tab.png" width="14px" style="vertical-align:middle"></a>
+			<a href="http://studentensurvival.com/mp-ssv/mp-ssv-mailchimp/" target="_blank" class="nav-tab">Help <img src="<?php echo plugin_dir_url(__DIR__); ?>general/images/link-new-tab.png" width="14px" style="vertical-align:middle"></a>
 		</h2>
 	</div>
 	<?php
