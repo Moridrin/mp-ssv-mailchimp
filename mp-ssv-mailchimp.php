@@ -10,6 +10,7 @@
  * License URI: http://www.wtfpl.net/txt/copying/
  */
 
+require_once 'general/general.php';
 require_once "options/options.php";
 
 function mp_ssv_register_mp_ssv_mailchimp()
