@@ -1,11 +1,12 @@
 <?php
-function mp_ssv_mailchimp_settings_page_frontend_members_tab() {
-	$mailchimp_merge_tags = mp_ssv_get_merge_fields(get_option('mailchimp_member_sync_list_id'));
+function ssv_mailchimp_settings_page_frontend_members_tab()
+{
+    $mailchimp_merge_tags = ssv_get_merge_fields(get_option('mailchimp_member_sync_list_id'));
 	
 	global $wpdb;
-	$table_name = $wpdb->prefix."mp_ssv_mailchimp_merge_fields";
+    $table_name = $wpdb->prefix . "ssv_mailchimp_merge_fields";
 	$fields = $wpdb->get_results("SELECT * FROM $table_name");
-	$table_name = $wpdb->prefix."mp_ssv_frontend_members_field_meta";
+    $table_name = $wpdb->prefix . "ssv_frontend_members_field_meta";
 	$member_field_names = $wpdb->get_results("SELECT meta_value FROM $table_name WHERE meta_key = 'name'");
 	?>
 	<br/>Add & Synchronize members to this MailChimp List.
@@ -20,13 +21,13 @@ function mp_ssv_mailchimp_settings_page_frontend_members_tab() {
 				<th scope="row">*|MERGE|* tag</th>
 			</tr>
 			<tr>
-				<td><?php echo mp_ssv_get_member_fields_select($member_field_names, "first_name", true); ?></td>
-				<td> <?php mp_ssv_get_merge_fields_select("first_Name", "FNAME", true, $mailchimp_merge_tags); ?> </td>
+                <td><?php echo ssv_get_member_fields_select($member_field_names, "first_name", true); ?></td>
+                <td> <?php ssv_get_merge_fields_select("first_Name", "FNAME", true, $mailchimp_merge_tags); ?> </td>
 				<td></td>
 			</tr>
 			<tr>
-				<td><?php echo mp_ssv_get_member_fields_select($member_field_names, "last_name", true); ?></td>
-				<td><?php mp_ssv_get_merge_fields_select("last_Name", "LNAME", true, $mailchimp_merge_tags); ?></td>
+                <td><?php echo ssv_get_member_fields_select($member_field_names, "last_name", true); ?></td>
+                <td><?php ssv_get_merge_fields_select("last_Name", "LNAME", true, $mailchimp_merge_tags); ?></td>
 				<td></td>
 			</tr>
 			<?php 
@@ -36,30 +37,30 @@ function mp_ssv_mailchimp_settings_page_frontend_members_tab() {
 				$selected_mailchimp_merge_tag = stripslashes($field["mailchimp_tag"]);
 				?>
 				<tr>
-					<td><?php echo mp_ssv_get_member_fields_select($member_field_names, $seleted_member_field, false); ?></td>
-					<td><?php mp_ssv_get_merge_fields_select($seleted_member_field, $selected_mailchimp_merge_tag, false, $mailchimp_merge_tags); ?></td>
+                    <td><?php echo ssv_get_member_fields_select($member_field_names, $seleted_member_field, false); ?></td>
+                    <td><?php ssv_get_merge_fields_select($seleted_member_field, $selected_mailchimp_merge_tag, false, $mailchimp_merge_tags); ?></td>
 					<td><input type="hidden" name="submit_option_<?php echo $seleted_member_field; ?>"></td>
 				</tr>
 				<?php
 			}
 			?>
 		</table>
-		<button type="button" id="add_field_button" onclick="mp_ssv_add_new_field()">Add Field</button>
+        <button type="button" id="add_field_button" onclick="ssv_add_new_field()">Add Field</button>
 		<?php submit_button(); ?>
 	</form>
-    <script src="<?php echo plugins_url(); ?>/mp-ssv-frontend-members/include/jquery-2.2.0.js"></script>
-    <script src="<?php echo plugins_url(); ?>/mp-ssv-frontend-members/include/jquery-ui.js"></script>
+    <script src="<?php echo plugins_url(); ?>/ssv-frontend-members/include/jquery-2.2.0.js"></script>
+    <script src="<?php echo plugins_url(); ?>/ssv-frontend-members/include/jquery-ui.js"></script>
 	<script>
-	function mp_ssv_add_new_field() {
+        function ssv_add_new_field() {
 		var id = Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
         $("#container").find("> tbody:last-child").append(
 			$('<tr id="' + id + '">').append(
 				$('<td>').append(
-					'<?php echo mp_ssv_get_member_fields_select_for_javascript(false, $member_field_names); ?>'
+                    '<?php echo ssv_get_member_fields_select_for_javascript(false, $member_field_names); ?>'
 				)
 			).append(
 				$('<td>').append(
-					'<?php echo mp_ssv_get_merge_fields_select_for_javascript(false, $mailchimp_merge_tags); ?>'
+                    '<?php echo ssv_get_merge_fields_select_for_javascript(false, $mailchimp_merge_tags); ?>'
 				)
 			).append(
 				$('<td>').append(
@@ -72,9 +73,10 @@ function mp_ssv_mailchimp_settings_page_frontend_members_tab() {
 	<?php
 }
 
-function mp_ssv_mailchimp_settings_page_frontend_members_tab_save() {
+function ssv_mailchimp_settings_page_frontend_members_tab_save()
+{
 	global $wpdb;
-	$table_name = $wpdb->prefix."mp_ssv_mailchimp_merge_fields";
+    $table_name = $wpdb->prefix . "ssv_mailchimp_merge_fields";
 	$wpdb->delete($table_name, array('is_deletable' => 1));
 	$seleted_member_field = "";
 	$selected_mailchimp_merge_tag = "";

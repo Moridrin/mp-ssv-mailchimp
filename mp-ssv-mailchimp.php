@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: SSV MailChimp
- * Plugin URI: http://studentensurvival.com/plugins/mp-ssv-mailchimp
+ * Plugin URI: http://studentensurvival.com/plugins/ssv-mailchimp
  * Description: SSV MailChimp is an add-on for both the SSV Events and the SSV Frontend Members plugin.
  * Version: 1.0
  * Author: Jeroen Berkvens
@@ -13,16 +13,16 @@
 require_once 'general/general.php';
 require_once "options/options.php";
 
-function mp_ssv_register_mp_ssv_mailchimp()
+function ssv_register_ssv_mailchimp()
 {
-    if (!is_plugin_active('mp-ssv-events/mp-ssv-events.php') && !is_plugin_active('mp-ssv-frontend-members/mp-ssv-frontend-members.php')) {
-        wp_die('Sorry, but this plugin requires <a href="http://studentensurvival.com/plugins/mp-ssv-frontend-members">SSV Frontend Members</a> or <a href="http://studentensurvival.com/plugins/mp-ssv-events">SSV Events</a> to be installed and active. <br><a href="' . admin_url('plugins.php') . '">&laquo; Return to Plugins</a>');
+    if (!is_plugin_active('ssv-events/ssv-events.php') && !is_plugin_active('ssv-frontend-members/ssv-frontend-members.php')) {
+        wp_die('Sorry, but this plugin requires <a href="http://studentensurvival.com/plugins/ssv-frontend-members">SSV Frontend Members</a> or <a href="http://studentensurvival.com/plugins/ssv-events">SSV Events</a> to be installed and active. <br><a href="' . admin_url('plugins.php') . '">&laquo; Return to Plugins</a>');
     }
 }
 
-register_deactivation_hook(__FILE__, 'mp_ssv_register_mp_ssv_mailchimp');
+register_deactivation_hook(__FILE__, 'ssv_register_ssv_mailchimp');
 
-function mp_ssv_get_member_fields_select_for_javascript($disabled, $member_field_names)
+function ssv_get_member_fields_select_for_javascript($disabled, $member_field_names)
 {
     ob_start();
     echo '<select name="member_\' + id + \'"';
@@ -40,7 +40,7 @@ function mp_ssv_get_member_fields_select_for_javascript($disabled, $member_field
     return ob_get_clean();
 }
 
-function mp_ssv_get_merge_fields_select($id, $tag_name, $disabled, $mailchimp_merge_tags)
+function ssv_get_merge_fields_select($id, $tag_name, $disabled, $mailchimp_merge_tags)
 {
     if ($id == "") {
         $s = uniqid('', true);
@@ -61,7 +61,7 @@ function mp_ssv_get_merge_fields_select($id, $tag_name, $disabled, $mailchimp_me
     echo '</select>';
 }
 
-function mp_ssv_get_merge_fields_select_for_javascript($disabled, $mailchimp_merge_tags)
+function ssv_get_merge_fields_select_for_javascript($disabled, $mailchimp_merge_tags)
 {
     ob_start();
     echo '<select name="mailchimp_\' + id + \'" ';
@@ -77,10 +77,10 @@ function mp_ssv_get_merge_fields_select_for_javascript($disabled, $mailchimp_mer
     return ob_get_clean();
 }
 
-function mp_ssv_get_merge_fields($listID)
+function ssv_get_merge_fields($listID)
 {
-    $apiKey = get_option('mp_ssv_mailchimp_api_key');
-    $maxRequest = get_option('mp_ssv_mailchimp_max_request');
+    $apiKey = get_option('ssv_mailchimp_api_key');
+    $maxRequest = get_option('ssv_mailchimp_max_request');
     if ($maxRequest < 1) {
         $maxRequest = 10;
     }
@@ -107,12 +107,12 @@ function mp_ssv_get_merge_fields($listID)
     return $results;
 }
 
-function mp_ssv_update_mailchimp_member($user)
+function ssv_update_mailchimp_member($user)
 {
     $member = array();
     $merge_fields = array();
     global $wpdb;
-    $table_name = $wpdb->prefix . "mp_ssv_mailchimp_merge_fields";
+    $table_name = $wpdb->prefix . "ssv_mailchimp_merge_fields";
     $fields = $wpdb->get_results("SELECT * FROM $table_name");
     foreach ($fields as $field) {
         $field = json_decode(json_encode($field), true);
@@ -126,7 +126,7 @@ function mp_ssv_update_mailchimp_member($user)
     $member["status"] = "subscribed";
     $member["merge_fields"] = $merge_fields;
 
-    $apiKey = get_option('mp_ssv_mailchimp_api_key');
+    $apiKey = get_option('ssv_mailchimp_api_key');
     $listID = get_option('mailchimp_member_sync_list_id');
     $memberId = md5(strtolower($member['email_address']));
     $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
@@ -150,10 +150,10 @@ function mp_ssv_update_mailchimp_member($user)
     return $httpCode;
 }
 
-function mp_ssv_remove_mailchimp_member($user_id)
+function ssv_remove_mailchimp_member($user_id)
 {
     $member = FrontendMember::get_by_id($user_id);
-    $apiKey = get_option('mp_ssv_mailchimp_api_key');
+    $apiKey = get_option('ssv_mailchimp_api_key');
     $listID = get_option('mailchimp_member_sync_list_id');
     $memberId = md5(strtolower($member->user_email));
     $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
@@ -174,9 +174,9 @@ function mp_ssv_remove_mailchimp_member($user_id)
     return $httpCode;
 }
 
-add_action('delete_user', 'mp_ssv_remove_mailchimp_member');
+add_action('delete_user', 'ssv_remove_mailchimp_member');
 
-function mp_ssv_get_member_fields_select($member_field_names, $selected_member_field_name, $disabled)
+function ssv_get_member_fields_select($member_field_names, $selected_member_field_name, $disabled)
 {
     ob_start();
     echo '<select name="member_' . $selected_member_field_name . '" ';
