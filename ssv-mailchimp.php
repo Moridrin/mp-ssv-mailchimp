@@ -15,9 +15,21 @@ require_once "options/options.php";
 
 function ssv_register_ssv_mailchimp()
 {
-    if (!is_plugin_active('ssv-events/ssv-events.php') && !is_plugin_active('ssv-frontend-members/ssv-frontend-members.php')) {
-        wp_die('Sorry, but this plugin requires <a href="http://studentensurvival.com/plugins/ssv-frontend-members">SSV Frontend Members</a> or <a href="http://studentensurvival.com/plugins/ssv-events">SSV Events</a> to be installed and active. <br><a href="' . admin_url('plugins.php') . '">&laquo; Return to Plugins</a>');
-    }
+    /* Database */
+    global $wpdb;
+    /** @noinspection PhpIncludeInspection */
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    $charset_collate = $wpdb->get_charset_collate();
+    $table_name = $wpdb->prefix . "ssv_mailchimp_merge_fields";
+    $wpdb->show_errors();
+    $sql
+        = "CREATE TABLE IF NOT EXISTS $table_name (
+            `id` bigint(20) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+            `member_tag` varchar(30) NOT NULL,
+            `mailchimp_tag` varchar(30) NOT NULL,
+            `is_deletable` tinyint(4) NOT NULL DEFAULT '1'
+		) $charset_collate;";
+    dbDelta($sql);
 }
 
 register_deactivation_hook(__FILE__, 'ssv_register_ssv_mailchimp');
