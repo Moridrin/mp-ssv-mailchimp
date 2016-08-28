@@ -4,7 +4,7 @@ include "frontend-members-tab.php";
 
 function ssv_add_ssv_mailchimp_menu()
 {
-    add_submenu_page('ssv_settings', 'MailChimp Options', 'MailChimp', 'manage_options', "ssv-mailchimp-options", 'ssv_mailchimp_settings_page');
+	add_submenu_page('ssv_settings', 'MailChimp Options', 'MailChimp', 'manage_options', __FILE__, 'ssv_mailchimp_settings_page');
 }
 
 function ssv_mailchimp_settings_page()
@@ -26,16 +26,16 @@ function ssv_mailchimp_settings_page()
 	<div class="wrap">
         <h1>SSV MailChimp Options</h1>
 		<h2 class="nav-tab-wrapper">
-            <a href="?page=ssv-mailchimp-options&tab=general" class="nav-tab <?php if ($active_tab == "general") {
+			<a href="?page=<?php echo __FILE__; ?>&tab=general" class="nav-tab <?php if ($active_tab == "general") {
                 echo "nav-tab-active";
             } ?>">General</a>
             <?php if (is_plugin_active('ssv-frontend-members/ssv-frontend-members.php')) { ?>
-                <a href="?page=ssv-mailchimp-options&tab=frontend_members" class="nav-tab <?php if ($active_tab == "frontend_members") {
+				<a href="?page=<?php echo __FILE__; ?>&tab=frontend_members" class="nav-tab <?php if ($active_tab == "frontend_members") {
                     echo "nav-tab-active";
                 } ?>">Frontend Members</a>
 			<?php } ?>
             <?php if (is_plugin_active('ssv-events/ssv-events.php')) { ?>
-                <a href="?page=ssv-mailchimp-options&tab=events" class="nav-tab <?php if ($active_tab == "events") {
+				<a href="?page=<?php echo __FILE__; ?>&tab=events" class="nav-tab <?php if ($active_tab == "events") {
                     echo "nav-tab-active";
                 } ?>">Events</a>
 			<?php } ?>
