@@ -162,6 +162,8 @@ function ssv_update_mailchimp_member($user)
     return $httpCode;
 }
 
+add_action('ssv_frontend_member_saved', 'ssv_update_mailchimp_member');
+
 function ssv_remove_mailchimp_member($user_id)
 {
     $member = FrontendMember::get_by_id($user_id);
