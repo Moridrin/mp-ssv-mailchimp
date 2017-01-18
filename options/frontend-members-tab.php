@@ -80,8 +80,8 @@ function ssv_mailchimp_settings_page_frontend_members_tab_save()
 	global $wpdb;
     $table_name = $wpdb->prefix . "ssv_mailchimp_merge_fields";
 	$wpdb->delete($table_name, array('is_deletable' => 1));
-	$seleted_member_field = "";
-	$selected_mailchimp_merge_tag = "";
+    $seleted_member_field         = '';
+    $selected_mailchimp_merge_tag = '';
 	foreach( $_POST as $id => $val ) {
 		if ($id == "mailchimp_member_sync_list_id") {
 			update_option('mailchimp_member_sync_list_id', $val);
@@ -90,7 +90,7 @@ function ssv_mailchimp_settings_page_frontend_members_tab_save()
 		} else if (strpos($id, "mailchimp_") !== false) {
 			$selected_mailchimp_merge_tag = $val;
 		} else if (strpos($id, "submit_option_") !== false) {
-			if ($seleted_member_field != "") {
+            if ($seleted_member_field != '') {
 				$wpdb->insert(
 					$table_name,
 					array(

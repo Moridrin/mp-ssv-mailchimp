@@ -54,7 +54,7 @@ function ssv_get_member_fields_select_for_javascript($disabled, $member_field_na
 
 function ssv_get_merge_fields_select($id, $tag_name, $disabled, $mailchimp_merge_tags)
 {
-    if ($id == "") {
+    if ($id == '') {
         $s = uniqid('', true);
         $id = base_convert($s, 16, 36);
     }
