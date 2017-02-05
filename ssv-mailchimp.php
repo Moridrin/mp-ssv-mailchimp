@@ -73,7 +73,7 @@ if (SSV_General::usersPluginActive()) {
             'mp-ssv-merge-tag-selector',
             'settings',
             array(
-                'field_options' => SSV_Users::getInputFieldNames(),
+                'field_options' => array_values(SSV_Users::getInputFieldNames()),
                 'tag_options'   => SSV_MailChimp::getMergeFields(get_option(SSV_MailChimp::OPTION_USERS_LIST)),
             )
         );
@@ -124,6 +124,7 @@ class SSV_MailChimp
     const OPTION_MAX_REQUEST_COUNT = 'ssv_mailchimp__max_request_count';
     const OPTION_USERS_LIST = 'ssv_mailchimp__users_list';
     const OPTION_MERGE_TAG_LINKS = 'ssv_mailchimp__merge_tag_links';
+    const OPTION_CREATE_LIST = 'ssv_mailchimp__create_list';
 
     const ADMIN_REFERER_OPTIONS = 'ssv_mailchimp__admin_referer_options';
 
@@ -139,9 +140,34 @@ class SSV_MailChimp
 
     #endregion
 
+    public static function getLists()
+    {
+        $apiKey     = get_option(self::OPTION_API_KEY);
+        if (empty($apiKey)) {
+            return array();
+        }
+        $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
+        $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists';
+        $ch           = curl_init($url);
+        curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $curl_results = json_decode(curl_exec($ch), true)["lists"];
+        curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $curl_results = is_array($curl_results) ? $curl_results : array();
+        return array_column($curl_results, 'name', 'id');
+    }
+
     public static function getMergeFields($listID)
     {
         $apiKey     = get_option(self::OPTION_API_KEY);
+        if (empty($apiKey) || empty($listID)) {
+            return array();
+        }
         $maxRequest = get_option(self::OPTION_MAX_REQUEST_COUNT);
         if ($maxRequest < 1) {
             $maxRequest = 10;
@@ -158,6 +184,7 @@ class SSV_MailChimp
         $curl_results = json_decode(curl_exec($ch), true)["merge_fields"];
         curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+        $curl_results = is_array($curl_results) ? $curl_results : array();
         return array_column($curl_results, 'tag');
     }
 }

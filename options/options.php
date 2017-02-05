@@ -14,16 +14,17 @@ function ssv_mailchimp_settings_page()
     if (isset($_GET['tab'])) {
         $active_tab = $_GET['tab'];
     }
+    $disabled = empty(get_option(SSV_MailChimp::OPTION_API_KEY));
     ?>
     <div class="wrap">
         <h1>Users Options</h1>
         <h2 class="nav-tab-wrapper">
             <a href="?page=<?= $_GET['page'] ?>&tab=general" class="nav-tab <?= $active_tab == 'general' ? 'nav-tab-active' : '' ?>">General</a>
-            <?php if (SSV_General::usersPluginActive()): ?>
+            <?php if (SSV_General::usersPluginActive() && !$disabled): ?>
                 <a href="?page=<?= $_GET['page'] ?>&tab=users" class="nav-tab <?= $active_tab == 'users' ? 'nav-tab-active' : '' ?>">Users</a>
             <?php endif; ?>
-            <?php if (SSV_General::eventsPluginActive()): ?>
-                <a href="?page=<?= $_GET['page'] ?>&tab=email" class="nav-tab <?= $active_tab == 'events' ? 'nav-tab-active' : '' ?>">Email</a>
+            <?php if (SSV_General::eventsPluginActive() && !$disabled): ?>
+                <a href="?page=<?= $_GET['page'] ?>&tab=events" class="nav-tab <?= $active_tab == 'events' ? 'nav-tab-active' : '' ?>">Events</a>
             <?php endif; ?>
             <a href="http://bosso.nl/ssv-mailchimp/" target="_blank" class="nav-tab">
                 Help <img src="<?= SSV_General::URL ?>/images/link-new-tab.png" width="14px" style="vertical-align:middle">

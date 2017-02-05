@@ -19,7 +19,7 @@ function mp_ssv_add_new_merge_tag(fieldID, fieldName, tagName) {
 function createSelect(fieldID, fieldNameExtension, options, selected) {
     var select = document.createElement("select");
     select.setAttribute("id", fieldID + fieldNameExtension);
-    select.setAttribute("name", "custom_field_" + fieldID + fieldNameExtension);
+    select.setAttribute("name", "link_" + fieldID + fieldNameExtension);
 
     for (var i = 0; i < options.length; i++) {
         var option = document.createElement("option");
