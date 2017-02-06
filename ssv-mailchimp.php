@@ -18,7 +18,7 @@ require_once "options/options.php";
 
 
 #region Register
-function mp_ssv_general_register_plugin()
+function mp_ssv_mailchimp_register_plugin()
 {
     global $wpdb;
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -35,7 +35,7 @@ function mp_ssv_general_register_plugin()
 		) $charset_collate;";
     $wpdb->query($sql);
 }
-//register_activation_hook(__FILE__, 'mp_ssv_mailchimp_register_plugin');
+register_activation_hook(__FILE__, 'mp_ssv_mailchimp_register_plugin');
 register_activation_hook(__FILE__, 'mp_ssv_general_register_plugin');
 #endregion
 
@@ -137,13 +137,13 @@ add_action('delete_user', 'mp_ssv_mailchimp_remove_member');
 global $wpdb;
 define('SSV_MAILCHIMP_PATH', plugin_dir_path(__FILE__));
 define('SSV_MAILCHIMP_URL', plugins_url() . '/ssv-mailchimp/');
-//define('SSV_MAILCHIMP_CUSTOM_FIELDS_TABLE', $wpdb->prefix . "ssv_mailchimp_custom_fields");
+define('SSV_MAILCHIMP_CUSTOM_FIELDS_TABLE', $wpdb->prefix . "ssv_mailchimp_custom_fields");
 
 class SSV_MailChimp
 {
     const PATH = SSV_MAILCHIMP_PATH;
     const URL = SSV_MAILCHIMP_URL;
-//    const CUSTOM_FIELDS_TABLE = SSV_MAILCHIMP_CUSTOM_FIELDS_TABLE;
+    const CUSTOM_FIELDS_TABLE = SSV_MAILCHIMP_CUSTOM_FIELDS_TABLE;
 
     const OPTION_API_KEY = 'ssv_mailchimp__api_key';
     const OPTION_MAX_REQUEST_COUNT = 'ssv_mailchimp__max_request_count';
