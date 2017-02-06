@@ -17,56 +17,42 @@ require_once 'general/general.php';
 require_once "options/options.php";
 
 #region Register
-function mp_ssv_mailchimp_register_plugin()
-{
-    global $wpdb;
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $table_name = SSV_MailChimp::CUSTOM_FIELDS_TABLE;
-    $sql
-                = "
-		CREATE TABLE IF NOT EXISTS $table_name (
-			ID bigint(20) NOT NULL AUTO_INCREMENT,
-			fieldName VARCHAR(20) NOT NULL,
-			tagName VARCHAR(8) NOT NULL,
-			PRIMARY KEY (ID)
-		) $charset_collate;";
-    $wpdb->query($sql);
-}
-register_activation_hook(__FILE__, 'mp_ssv_mailchimp_register_plugin');
 register_activation_hook(__FILE__, 'mp_ssv_general_register_plugin');
 #endregion
 
 if (SSV_General::usersPluginActive()) {
     #region Update Member
+    /**
+     * @param User $user
+     *
+     * @return mixed
+     */
     function mp_ssv_mailchimp_update_member($user)
     {
-        $member       = array();
-        $merge_fields = array();
-        global $wpdb;
-        $table_name = $wpdb->prefix . "ssv_mailchimp_merge_fields";
-        $fields     = $wpdb->get_results("SELECT * FROM $table_name");
-        foreach ($fields as $field) {
-            $field                              = json_decode(json_encode($field), true);
-            $member_field                       = stripslashes($field["member_tag"]);
-            $mailchimp_merge_tag                = stripslashes($field["mailchimp_tag"]);
-            $merge_fields[$mailchimp_merge_tag] = get_user_meta($user->ID, $member_field, true);
+        $mailchimpMember = array();
+        $mergeFields     = array();
+        $links           = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
+        foreach ($links as $link) {
+            $link                              = json_decode($link, true);
+            $mailchimp_merge_tag               = strtoupper($link["tagName"]);
+            $member_field                      = $link["fieldName"];
+            $value = $user->getMeta($member_field);
+            SSV_General::var_export($member_field, 0);
+            SSV_General::var_export($value, 0);
+            $mergeFields[$mailchimp_merge_tag] = $value;
         }
-        $merge_fields['FNAME']   = get_user_meta($user->ID, "first_name", true);
-        $merge_fields['LNAME']   = get_user_meta($user->ID, "last_name", true);
-        $member["email_address"] = $user->user_email;
-        $member["status"]        = "subscribed";
-        $member["merge_fields"]  = $merge_fields;
+        $mailchimpMember["email_address"] = $user->user_email;
+        $mailchimpMember["status"]        = "subscribed";
+        $mailchimpMember["merge_fields"]  = $mergeFields;
 
-        $apiKey       = get_option('ssv_mailchimp_api_key');
-        $listID       = get_option('mailchimp_member_sync_list_id');
-        $memberId     = md5(strtolower($member['email_address']));
+        $apiKey       = get_option(SSV_MailChimp::OPTION_API_KEY);
+        $listID       = get_option(SSV_MailChimp::OPTION_USERS_LIST);
+        $memberId     = md5(strtolower($mailchimpMember['email_address']));
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
         $ch           = curl_init($url);
 
-        $json = json_encode($member);
+        $json = json_encode($mailchimpMember);
 
         curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
@@ -79,6 +65,7 @@ if (SSV_General::usersPluginActive()) {
         json_decode(curl_exec($ch), true);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+        SSV_General::var_export($json, 1);
 
         return $httpCode;
     }
@@ -89,15 +76,13 @@ if (SSV_General::usersPluginActive()) {
     #region Register Scripts
     function mp_ssv_mailchimp_admin_scripts()
     {
-        $tmp = array_values(SSV_Users::getInputFieldNames());
-        $tmpp = SSV_MailChimp::getMergeFields(get_option(SSV_MailChimp::OPTION_USERS_LIST));
         wp_enqueue_script('mp-ssv-merge-tag-selector', SSV_MailChimp::URL . '/js/mp-ssv-merge-tag-selector.js', array('jquery'));
         wp_localize_script(
             'mp-ssv-merge-tag-selector',
-            'settings',
+            'merge_tag_settings',
             array(
-//                'field_options' => array_values(SSV_Users::getInputFieldNames()),
-//                'tag_options'   => SSV_MailChimp::getMergeFields(get_option(SSV_MailChimp::OPTION_USERS_LIST)),
+                'field_options' => array_values(SSV_Users::getInputFieldNames()),
+                'tag_options'   => SSV_MailChimp::getMergeFields(get_option(SSV_MailChimp::OPTION_USERS_LIST)),
             )
         );
     }
@@ -144,7 +129,6 @@ class SSV_MailChimp
 {
     const PATH = SSV_MAILCHIMP_PATH;
     const URL = SSV_MAILCHIMP_URL;
-    const CUSTOM_FIELDS_TABLE = SSV_MAILCHIMP_CUSTOM_FIELDS_TABLE;
 
     const OPTION_API_KEY = 'ssv_mailchimp__api_key';
     const OPTION_MAX_REQUEST_COUNT = 'ssv_mailchimp__max_request_count';
@@ -168,7 +152,7 @@ class SSV_MailChimp
 
     public static function getLists()
     {
-        $apiKey     = get_option(self::OPTION_API_KEY);
+        $apiKey = get_option(self::OPTION_API_KEY);
         if (empty($apiKey)) {
             return array();
         }
@@ -190,7 +174,7 @@ class SSV_MailChimp
 
     public static function getMergeFields($listID)
     {
-        $apiKey     = get_option(self::OPTION_API_KEY);
+        $apiKey = get_option(self::OPTION_API_KEY);
         if (empty($apiKey) || empty($listID)) {
             return array();
         }
