@@ -16,6 +16,7 @@ if (!defined('ABSPATH')) {
 require_once 'general/general.php';
 require_once "options/options.php";
 
+register_activation_hook(__FILE__, 'mp_ssv_general_register_plugin');
 
 if (SSV_General::usersPluginActive()) {
     #region Update Member
