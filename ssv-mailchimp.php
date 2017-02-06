@@ -16,7 +16,6 @@ if (!defined('ABSPATH')) {
 require_once 'general/general.php';
 require_once "options/options.php";
 
-
 #region Register
 function mp_ssv_mailchimp_register_plugin()
 {
@@ -90,13 +89,15 @@ if (SSV_General::usersPluginActive()) {
     #region Register Scripts
     function mp_ssv_mailchimp_admin_scripts()
     {
+        $tmp = array_values(SSV_Users::getInputFieldNames());
+        $tmpp = SSV_MailChimp::getMergeFields(get_option(SSV_MailChimp::OPTION_USERS_LIST));
         wp_enqueue_script('mp-ssv-merge-tag-selector', SSV_MailChimp::URL . '/js/mp-ssv-merge-tag-selector.js', array('jquery'));
         wp_localize_script(
             'mp-ssv-merge-tag-selector',
             'settings',
             array(
-                'field_options' => array_values(SSV_Users::getInputFieldNames()),
-                'tag_options'   => SSV_MailChimp::getMergeFields(get_option(SSV_MailChimp::OPTION_USERS_LIST)),
+//                'field_options' => array_values(SSV_Users::getInputFieldNames()),
+//                'tag_options'   => SSV_MailChimp::getMergeFields(get_option(SSV_MailChimp::OPTION_USERS_LIST)),
             )
         );
     }
