@@ -37,8 +37,6 @@ if (SSV_General::usersPluginActive()) {
             $mailchimp_merge_tag               = strtoupper($link["tagName"]);
             $member_field                      = $link["fieldName"];
             $value = $user->getMeta($member_field);
-            SSV_General::var_export($member_field, 0);
-            SSV_General::var_export($value, 0);
             $mergeFields[$mailchimp_merge_tag] = $value;
         }
         $mailchimpMember["email_address"] = $user->user_email;
@@ -65,7 +63,6 @@ if (SSV_General::usersPluginActive()) {
         json_decode(curl_exec($ch), true);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        SSV_General::var_export($json, 1);
 
         return $httpCode;
     }
@@ -94,7 +91,7 @@ if (SSV_General::usersPluginActive()) {
 #region Delete Member
 function mp_ssv_mailchimp_remove_member($user_id)
 {
-    $member       = FrontendMember::get_by_id($user_id);
+    $member       = User::getByID($user_id);
     $apiKey       = get_option('ssv_mailchimp_api_key');
     $listID       = get_option('mailchimp_member_sync_list_id');
     $memberId     = md5(strtolower($member->user_email));
