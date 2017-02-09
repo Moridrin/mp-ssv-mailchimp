@@ -4,7 +4,7 @@
  * Plugin URI: http://bosso.nl/ssv-mailchimp/
  * Description: SSV MailChimp is an add-on for both the SSV Events and the SSV Frontend Members plugin.
  * Version: 3.0
- * Author: Jeroen Berkvens
+ * Author: moridrin
  * Author URI: http://nl.linkedin.com/in/jberkvens/
  * License: WTFPL
  * License URI: http://www.wtfpl.net/txt/copying/
