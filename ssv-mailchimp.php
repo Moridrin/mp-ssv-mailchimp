@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: SSV MailChimp
- * Plugin URI: http://studentensurvival.com/plugins/ssv-mailchimp
+ * Plugin URI: http://bosso.nl/ssv-mailchimp/
  * Description: SSV MailChimp is an add-on for both the SSV Events and the SSV Frontend Members plugin.
- * Version: 1.0
+ * Version: 3.0
  * Author: Jeroen Berkvens
  * Author URI: http://nl.linkedin.com/in/jberkvens/
  * License: WTFPL
