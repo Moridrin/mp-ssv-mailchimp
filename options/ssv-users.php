@@ -24,8 +24,8 @@ if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
             $links[] = json_encode(
                 array(
                     'ID'        => $i,
-                    'fieldName' => $_POST['link_' . $i . '_field'],
-                    'tagName'   => $_POST['link_' . $i . '_tag'],
+                    'fieldName' => SSV_General::sanitize($_POST['link_' . $i . '_field']),
+                    'tagName'   => SSV_General::sanitize($_POST['link_' . $i . '_tag']),
                 )
             );
             $i++;
