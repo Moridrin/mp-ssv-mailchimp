@@ -20,15 +20,15 @@ require_once "options/options.php";
 register_activation_hook(__FILE__, 'mp_ssv_general_register_plugin');
 #endregion
 
-if (SSV_General::usersPluginActive()) {
-    #region Update Member
-    /**
-     * @param User $user
-     *
-     * @return mixed
-     */
-    function mp_ssv_mailchimp_update_member($user)
-    {
+#region Update Member
+/**
+ * @param User $user
+ *
+ * @return mixed
+ */
+function mp_ssv_mailchimp_update_member($user)
+{
+    if (SSV_General::usersPluginActive()) {
         $mailchimpMember = array();
         $mergeFields     = array();
         $links           = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
@@ -36,7 +36,7 @@ if (SSV_General::usersPluginActive()) {
             $link                              = json_decode($link, true);
             $mailchimp_merge_tag               = strtoupper($link["tagName"]);
             $member_field                      = $link["fieldName"];
-            $value = $user->getMeta($member_field);
+            $value                             = $user->getMeta($member_field);
             $mergeFields[$mailchimp_merge_tag] = $value;
         }
         $mailchimpMember["email_address"] = $user->user_email;
@@ -60,19 +60,29 @@ if (SSV_General::usersPluginActive()) {
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
 
-        json_decode(curl_exec($ch), true);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $tmp = json_decode(curl_exec($ch), true);
         curl_close($ch);
-
-        return $httpCode;
+        if (array_key_exists('merge_fields', $tmp)) {
+            foreach ($links as $link) {
+                $link                              = json_decode($link, true);
+                $mailchimp_merge_tag               = strtoupper($link["tagName"]);
+                $member_field                      = $link["fieldName"];
+                $value                             = $user->getMeta($member_field);
+                $mergeFields[$mailchimp_merge_tag] = $value;
+            }
+        }
+        SSV_General::var_export($tmp, 1);
     }
+    return null;
+}
 
-    add_action(SSV_General::HOOK_USERS_SAVE_MEMBER, 'mp_ssv_mailchimp_update_member');
-    #endregion
+add_action(SSV_General::HOOK_USERS_SAVE_MEMBER, 'mp_ssv_mailchimp_update_member');
+#endregion
 
-    #region Register Scripts
-    function mp_ssv_mailchimp_admin_scripts()
-    {
+#region Register Scripts
+function mp_ssv_mailchimp_admin_scripts()
+{
+    if (SSV_General::usersPluginActive()) {
         wp_enqueue_script('mp-ssv-merge-tag-selector', SSV_MailChimp::URL . '/js/mp-ssv-merge-tag-selector.js', array('jquery'));
         wp_localize_script(
             'mp-ssv-merge-tag-selector',
@@ -83,10 +93,10 @@ if (SSV_General::usersPluginActive()) {
             )
         );
     }
-
-    add_action('admin_enqueue_scripts', 'mp_ssv_mailchimp_admin_scripts');
-    #endregion
 }
+
+add_action('admin_enqueue_scripts', 'mp_ssv_mailchimp_admin_scripts');
+#endregion
 
 #region Delete Member
 function mp_ssv_mailchimp_remove_member($user_id)
