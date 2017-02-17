@@ -101,26 +101,28 @@ add_action('admin_enqueue_scripts', 'mp_ssv_mailchimp_admin_scripts');
 #region Delete Member
 function mp_ssv_mailchimp_remove_member($user_id)
 {
-    $member       = User::getByID($user_id);
-    $apiKey       = get_option('ssv_mailchimp_api_key');
-    $listID       = get_option('mailchimp_member_sync_list_id');
-    $memberId     = md5(strtolower($member->user_email));
-    $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
-    $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
-    $ch           = curl_init($url);
+    if (SSV_General::usersPluginActive()) {
+        $member       = User::getByID($user_id);
+        $apiKey       = get_option('ssv_mailchimp_api_key');
+        $listID       = get_option('mailchimp_member_sync_list_id');
+        $memberId     = md5(strtolower($member->user_email));
+        $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
+        $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
+        $ch           = curl_init($url);
 
-    curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-    json_decode(curl_exec($ch), true);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+        json_decode(curl_exec($ch), true);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-    return $httpCode;
+        return $httpCode;
+    }
 }
 
 add_action('delete_user', 'mp_ssv_mailchimp_remove_member');
