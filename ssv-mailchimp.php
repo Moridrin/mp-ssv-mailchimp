@@ -71,7 +71,6 @@ function mp_ssv_mailchimp_update_member($user)
                 $mergeFields[$mailchimp_merge_tag] = $value;
             }
         }
-        SSV_General::var_export($tmp, 1);
     }
     return null;
 }
