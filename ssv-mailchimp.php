@@ -117,11 +117,11 @@ function mp_ssv_mailchimp_remove_member($user_id)
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
         json_decode(curl_exec($ch), true);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        return $httpCode;
+        return $user_id;
     }
+    return $user_id;
 }
 
 add_action('delete_user', 'mp_ssv_mailchimp_remove_member');

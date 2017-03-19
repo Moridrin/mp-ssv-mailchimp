@@ -44,7 +44,7 @@ $links = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
                     <option value="-1">Select One</option>
                     <?php $selected = get_option(SSV_MailChimp::OPTION_USERS_LIST, ''); ?>
                     <?php foreach (SSV_MailChimp::getLists() as $listID => $listName): ?>
-                        <option value="<?= $listID ?>" <?= $listID == $selected ? 'selected' : '' ?>><?= $listName ?></option>
+                        <option value="<?= esc_html($listID) ?>" <?= selected($listID, $selected, false) ?>><?= esc_html($listName) ?></option>
                     <?php endforeach; ?>
                 </select>
             </td>

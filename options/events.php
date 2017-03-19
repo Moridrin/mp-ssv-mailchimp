@@ -24,7 +24,7 @@ if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
             <td>
                 <label>
                     <input type="hidden" name="email_on_registration" value="false"/>
-                    <input type="checkbox" name="email_on_registration" value="true" <?= get_option(SSV_MailChimp::OPTION_CREATE_LIST) ? 'checked' : '' ?> />
+                    <input type="checkbox" name="email_on_registration" value="true" <?= checked(get_option(SSV_MailChimp::OPTION_CREATE_LIST), true, false) ?> />
                     Create a mailing list for all new events created. Users registering for this event will automatically be added.
                 </label>
             </td>
