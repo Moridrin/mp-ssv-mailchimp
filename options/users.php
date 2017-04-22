@@ -1,10 +1,7 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: moridrin
- * Date: 21-1-17
- * Time: 7:38
- */
+namespace mp_ssv_mailchimp;
+use mp_ssv_general\SSV_General;
+
 if (!defined('ABSPATH')) {
     exit;
 }
