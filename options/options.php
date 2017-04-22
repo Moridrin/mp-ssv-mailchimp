@@ -1,6 +1,6 @@
 <?php
-namespace mp_ssv_mailchimp;
 use mp_ssv_general\SSV_General;
+use mp_ssv_mailchimp\SSV_MailChimp;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 function ssv_add_ssv_mailchimp_menu()
 {
-    add_submenu_page('ssv_settings', 'MailChimp Options', 'MailChimp', 'manage_options', __FILE__, 'ssv_mailchimp_settings_page');
+//    add_submenu_page('ssv_settings', 'MailChimp Options', 'MailChimp', 'manage_options', __FILE__, 'ssv_mailchimp_settings_page');
 }
 
 function ssv_mailchimp_settings_page()
