@@ -27,7 +27,7 @@ function ssv_mailchimp_settings_page()
                 <a href="?page=<?= $_GET['page'] ?>&tab=users" class="nav-tab <?= SSV_General::currentNavTab('users', $active_tab) ?>">Users</a>
             <?php endif; ?>
             <?php if (SSV_General::eventsPluginActive() && !$disabled): ?>
-                <a href="?page=<?= $_GET['page'] ?>&tab=events" class="nav-tab <?php SSV_General::currentNavTab('events', $active_tab) ?>">Events</a>
+                <a href="?page=<?= $_GET['page'] ?>&tab=events" class="nav-tab <?= SSV_General::currentNavTab('events', $active_tab) ?>">Events</a>
             <?php endif; ?>
             <a href="http://bosso.nl/ssv-mailchimp/" target="_blank" class="nav-tab">
                 Help <img src="<?= SSV_General::URL ?>/images/link-new-tab-small.png" style="vertical-align:middle">
@@ -35,7 +35,7 @@ function ssv_mailchimp_settings_page()
         </h2>
         <?php
         /** @noinspection PhpIncludeInspection */
-        require_once $active_tab . '.php';
+        require_once SSV_MailChimp::PATH . 'options/' . $active_tab . '.php';
         ?>
     </div>
     <?php
