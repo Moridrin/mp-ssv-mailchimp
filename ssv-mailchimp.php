@@ -9,6 +9,7 @@
  * License: WTFPL
  * License URI: http://www.wtfpl.net/txt/copying/
  */
+
 namespace mp_ssv_mailchimp;
 
 if (!defined('ABSPATH')) {
@@ -35,10 +36,12 @@ class SSV_MailChimp
     const OPTION_USERS_LIST = 'ssv_mailchimp__users_list';
     const OPTION_MERGE_TAG_LINKS = 'ssv_mailchimp__merge_tag_links';
     const OPTION_CREATE_LIST = 'ssv_mailchimp__create_list';
+    const OPTION_IGNORE_USERS_LIST_MESSAGE = 'ssv_mailchimp__ignore_users_list_message';
 
     const ADMIN_REFERER_OPTIONS = 'ssv_mailchimp__admin_referer_options';
 
     #region resetOptions()
+
     /**
      * This function sets all the options for this plugin back to their default value
      */
@@ -46,6 +49,10 @@ class SSV_MailChimp
     {
         delete_option(self::OPTION_API_KEY);
         delete_option(self::OPTION_MAX_REQUEST_COUNT);
+        delete_option(self::OPTION_USERS_LIST);
+        delete_option(self::OPTION_MERGE_TAG_LINKS);
+        delete_option(self::OPTION_CREATE_LIST);
+        delete_option(self::OPTION_IGNORE_USERS_LIST_MESSAGE);
     }
 
     #endregion

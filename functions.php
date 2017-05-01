@@ -114,3 +114,28 @@ function mp_ssv_mailchimp_remove_member($user_id)
 
 add_action('delete_user', 'mp_ssv_mailchimp_remove_member');
 #endregion
+
+#region Update Settings Message.
+function mp_ssv_mailchimp_update_settings_notification()
+{
+    if (empty(get_option(SSV_MailChimp::OPTION_API_KEY))) {
+        ?>
+        <div class="update-nag notice">
+            <p>You still need to set the API Key for SSV MailChimp.</p>
+            <p><a href="/wp-admin/admin.php?page=ssv-mailchimp-settings&tab=general">Set Now</a></p>
+        </div>
+        <?php
+    }
+    if (empty(get_option(SSV_MailChimp::OPTION_USERS_LIST)) && !get_option(SSV_MailChimp::OPTION_IGNORE_USERS_LIST_MESSAGE)) {
+        ?>
+        <div class="update-nag notice">
+            <p>You still need to set the users list (without this, the users will not be synced with MailChimp.</p>
+            <p><a href="/wp-admin/admin.php?page=ssv-mailchimp-settings&tab=users">Set Now</a></p>
+            <p><a href="/wp-admin/admin.php?page=ssv-mailchimp-settings&tab=users&action=ignore_message">Dismiss</a></p>
+        </div>
+        <?php
+    }
+}
+
+add_action('admin_notices', 'mp_ssv_mailchimp_update_settings_notification');
+#endregion

@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 function ssv_add_ssv_mailchimp_menu()
 {
-    add_submenu_page('ssv_settings', 'MailChimp Options', 'MailChimp', 'manage_options', __FILE__, 'ssv_mailchimp_settings_page');
+    add_submenu_page('ssv_settings', 'MailChimp Options', 'MailChimp', 'manage_options', 'ssv-mailchimp-settings', 'ssv_mailchimp_settings_page');
 }
 
 function ssv_mailchimp_settings_page()

@@ -6,6 +6,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (isset($_GET['action']) && $_GET['action'] == 'ignore_message') {
+    update_option(SSV_MailChimp::OPTION_IGNORE_USERS_LIST_MESSAGE, true);
+}
+
 if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
     if (isset($_POST['reset'])) {
         SSV_MailChimp::resetOptions();
