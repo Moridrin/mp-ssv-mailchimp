@@ -28,7 +28,7 @@ function createLinkSelect(fieldID, fieldNameExtension, options, selected) {
     for (var i = 0; i < options.length; i++) {
         var option = document.createElement("option");
         option.setAttribute("value", options[i].toLowerCase());
-        if (options[i].toLowerCase() == selected) {
+        if (options[i].toLowerCase() === selected) {
             option.setAttribute("selected", "selected");
         }
         option.innerHTML = options[i];

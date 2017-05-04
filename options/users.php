@@ -1,12 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: moridrin
- * Date: 21-1-17
- * Time: 7:38
- */
+namespace mp_ssv_mailchimp;
+use mp_ssv_general\SSV_General;
+
 if (!defined('ABSPATH')) {
     exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] == 'ignore_message') {
+    update_option(SSV_MailChimp::OPTION_IGNORE_USERS_LIST_MESSAGE, true);
 }
 
 if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
@@ -24,8 +25,8 @@ if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
             $links[] = json_encode(
                 array(
                     'ID'        => $i,
-                    'fieldName' => $_POST['link_' . $i . '_field'],
-                    'tagName'   => $_POST['link_' . $i . '_tag'],
+                    'fieldName' => SSV_General::sanitize($_POST['link_' . $i . '_field']),
+                    'tagName'   => SSV_General::sanitize($_POST['link_' . $i . '_tag']),
                 )
             );
             $i++;
@@ -44,7 +45,7 @@ $links = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
                     <option value="-1">Select One</option>
                     <?php $selected = get_option(SSV_MailChimp::OPTION_USERS_LIST, ''); ?>
                     <?php foreach (SSV_MailChimp::getLists() as $listID => $listName): ?>
-                        <option value="<?= $listID ?>" <?= $listID == $selected ? 'selected' : '' ?>><?= $listName ?></option>
+                        <option value="<?= esc_html($listID) ?>" <?= selected($listID, $selected, false) ?>><?= esc_html($listName) ?></option>
                     <?php endforeach; ?>
                 </select>
             </td>
