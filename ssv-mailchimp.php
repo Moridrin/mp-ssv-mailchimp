@@ -12,6 +12,8 @@
 
 namespace mp_ssv_mailchimp;
 
+use mp_ssv_general\SSV_General;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -65,18 +67,19 @@ class SSV_MailChimp
         }
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists';
-        $ch           = curl_init($url);
-        curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $curl_results = json_decode(curl_exec($ch), true)["lists"];
-        curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        $curl_results = is_array($curl_results) ? $curl_results : array();
-        return array_column($curl_results, 'name', 'id');
+
+        $auth     = base64_encode('user:' . $apiKey);
+        $args     = array(
+            'headers' => array(
+                'Authorization' => 'Basic ' . $auth,
+            ),
+        );
+        $response = json_decode(wp_remote_get($url, $args)['body'], true);
+        if (array_key_exists('lists', $response)) {
+            return array_column($response['lists'], 'name', 'id');
+        } else {
+            return array();
+        }
     }
 
     public static function getMergeFields($listID)
@@ -91,18 +94,19 @@ class SSV_MailChimp
         }
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/merge-fields?count=' . $maxRequest;
-        $ch           = curl_init($url);
-        curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $curl_results = json_decode(curl_exec($ch), true)["merge_fields"];
-        curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        $curl_results = is_array($curl_results) ? $curl_results : array();
-        return array_column($curl_results, 'tag');
+
+        $auth     = base64_encode('user:' . $apiKey);
+        $args     = array(
+            'headers' => [
+                'Authorization' => 'Basic ' . $auth,
+            ],
+        );
+        $response = json_decode(wp_remote_get($url, $args)['body'], true);
+        if (array_key_exists('merge_fields', $response)) {
+            return array_column($response['merge_fields'], 'tag');
+        } else {
+            return array();
+        }
     }
 }
 #endregion

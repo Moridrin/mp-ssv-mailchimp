@@ -21,11 +21,11 @@ function mp_ssv_mailchimp_update_member($user)
         $mergeFields     = array();
         $links           = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
         foreach ($links as $link) {
-            $link                              = json_decode($link, true);
-            $mailchimp_merge_tag               = strtoupper($link["tagName"]);
-            $member_field                      = $link["fieldName"];
-            $value                             = $user->getMeta($member_field);
-            $mergeFields[$mailchimp_merge_tag] = $value;
+            $link                            = json_decode($link, true);
+            $mailchimpMergeTag               = strtoupper($link["tagName"]);
+            $memberField                     = $link["fieldName"];
+            $value                           = $user->getMeta($memberField);
+            $mergeFields[$mailchimpMergeTag] = $value;
         }
         $mailchimpMember["email_address"] = $user->user_email;
         $mailchimpMember["status"]        = "subscribed";
@@ -36,27 +36,24 @@ function mp_ssv_mailchimp_update_member($user)
         $memberId     = md5(strtolower($mailchimpMember['email_address']));
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
-        $ch           = curl_init($url);
 
-        $json = json_encode($mailchimpMember);
-
-        curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-
-        $tmp = json_decode(curl_exec($ch), true);
-        curl_close($ch);
-        if (array_key_exists('merge_fields', $tmp)) {
+        $json     = json_encode($mailchimpMember);
+        $auth     = base64_encode('user:' . $apiKey);
+        $args     = array(
+            'headers' => array(
+                'Authorization' => 'Basic ' . $auth,
+            ),
+            'body'    => $json,
+            'method' => 'PUT'
+        );
+        $response = json_decode(wp_remote_request($url, $args)['body'], true);
+        if (array_key_exists('merge_fields', $response)) {
             foreach ($links as $link) {
                 $link                              = json_decode($link, true);
-                $mailchimp_merge_tag               = strtoupper($link["tagName"]);
-                $member_field                      = $link["fieldName"];
-                $value                             = $user->getMeta($member_field);
-                $mergeFields[$mailchimp_merge_tag] = $value;
+                $mailchimpMergeTag               = strtoupper($link["tagName"]);
+                $memberField                      = $link["fieldName"];
+                $value                             = $user->getMeta($memberField);
+                $mergeFields[$mailchimpMergeTag] = $value;
             }
         }
     }
@@ -95,17 +92,15 @@ function mp_ssv_mailchimp_remove_member($user_id)
         $memberId     = md5(strtolower($member->user_email));
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
-        $ch           = curl_init($url);
 
-        curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-        json_decode(curl_exec($ch), true);
-        curl_close($ch);
+        $auth     = base64_encode('user:' . $apiKey);
+        $args     = array(
+            'headers' => array(
+                'Authorization' => 'Basic ' . $auth,
+            ),
+            'method' => 'DELETE'
+        );
+        wp_remote_request($url, $args)['body'];
 
         return $user_id;
     }

@@ -1,6 +1,7 @@
 <?php
 namespace mp_ssv_mailchimp;
 use mp_ssv_general\SSV_General;
+use mp_ssv_general\User;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -13,6 +14,11 @@ if (isset($_GET['action']) && $_GET['action'] == 'ignore_message') {
 if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
     if (isset($_POST['reset'])) {
         SSV_MailChimp::resetOptions();
+    } elseif (isset($_POST['push_all_members'])) {
+        foreach (get_users() as $user) {
+            $user = new User($user);
+            mp_ssv_mailchimp_update_member($user);
+        }
     } else {
         if ($_POST['users_list'] != -1) {
             update_option(SSV_MailChimp::OPTION_USERS_LIST, SSV_General::sanitize($_POST['users_list']));
@@ -68,5 +74,6 @@ $links = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
             <?php endforeach; ?>
         </script>
     <?php endif; ?>
+    <br/><input type="submit" name="push_all_members" id="push_all_members" class="button button-primary" value="Push all members to list.">
     <?= SSV_General::getFormSecurityFields(SSV_MailChimp::ADMIN_REFERER_OPTIONS); ?>
 </form>
