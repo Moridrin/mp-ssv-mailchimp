@@ -30,6 +30,10 @@ The best way is to add an issue on GitHub (https://github.com/Moridrin/ssv-mailc
 The best way is to add an issue on GitHub (https://github.com/Moridrin/ssv-mailchimp/issues). But you can also send an email to J.Berkvens@Moridrin.com (the lead developer).
 
 == Changelog ==
+= 3.1.1 =
+* curl replaced with wp_remote_*
+* Push all to MailChimp function added
+
 = 3.1.0 =
 * Namespaces added
 

@@ -74,6 +74,6 @@ $links = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
             <?php endforeach; ?>
         </script>
     <?php endif; ?>
-    <br/><input type="submit" name="push_all_members" id="push_all_members" class="button button-primary" value="Push all members to list.">
+    <br/><input type="submit" name="push_all_members" id="push_all_members" class="button button-primary" value="Push all members to MailChimp">
     <?= SSV_General::getFormSecurityFields(SSV_MailChimp::ADMIN_REFERER_OPTIONS); ?>
 </form>

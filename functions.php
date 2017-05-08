@@ -1,5 +1,7 @@
 <?php
 #region Register
+use mp_ssv_events\models\Event;
+use mp_ssv_events\models\Registration;
 use mp_ssv_general\SSV_General;
 use mp_ssv_general\User;
 use mp_ssv_mailchimp\SSV_MailChimp;
@@ -8,13 +10,37 @@ use mp_ssv_users\SSV_Users;
 register_activation_hook(__FILE__, 'mp_ssv_general_register_plugin');
 #endregion
 
-#region Update Member
+#region Update Member From User
 /**
  * @param User $user
- *
- * @return mixed
  */
-function mp_ssv_mailchimp_update_member($user)
+function mp_ssv_mailchimp_update_member_from_user($user)
+{
+    $listID = get_option(SSV_MailChimp::OPTION_USERS_LIST);
+    mp_ssv_mailchimp_update_member($user, $listID);
+}
+
+#endregion
+
+#region Update Member From Registration
+/**
+ * @param Registration $registration
+ */
+function mp_ssv_mailchimp_update_member_from_registration($registration)
+{
+    $user   = $registration->user;
+    $listID = $registration->event->mailchimpList;
+    mp_ssv_mailchimp_update_member($user, $listID);
+}
+
+#endregion
+
+#region Update Member
+/**
+ * @param User   $user
+ * @param string $listID
+ */
+function mp_ssv_mailchimp_update_member($user, $listID)
 {
     if (SSV_General::usersPluginActive()) {
         $mailchimpMember = array();
@@ -32,7 +58,6 @@ function mp_ssv_mailchimp_update_member($user)
         $mailchimpMember["merge_fields"]  = $mergeFields;
 
         $apiKey       = get_option(SSV_MailChimp::OPTION_API_KEY);
-        $listID       = get_option(SSV_MailChimp::OPTION_USERS_LIST);
         $memberId     = md5(strtolower($mailchimpMember['email_address']));
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
@@ -44,23 +69,74 @@ function mp_ssv_mailchimp_update_member($user)
                 'Authorization' => 'Basic ' . $auth,
             ),
             'body'    => $json,
-            'method' => 'PUT'
+            'method'  => 'PUT',
         );
         $response = json_decode(wp_remote_request($url, $args)['body'], true);
         if (array_key_exists('merge_fields', $response)) {
             foreach ($links as $link) {
-                $link                              = json_decode($link, true);
+                $link                            = json_decode($link, true);
                 $mailchimpMergeTag               = strtoupper($link["tagName"]);
-                $memberField                      = $link["fieldName"];
-                $value                             = $user->getMeta($memberField);
+                $memberField                     = $link["fieldName"];
+                $value                           = $user->getMeta($memberField);
                 $mergeFields[$mailchimpMergeTag] = $value;
             }
         }
     }
+}
+
+add_action(SSV_General::HOOK_USERS_SAVE_MEMBER, 'mp_ssv_mailchimp_update_member_from_user');
+add_action(SSV_General::HOOK_EVENTS_NEW_REGISTRATION, 'mp_ssv_mailchimp_update_member_from_registration');
+#endregion
+
+#region Event Created
+/**
+ * @param Event $event
+ *
+ * @return mixed
+ */
+function mp_ssv_mailchimp_event_created($event)
+{
+    if (get_option(SSV_Mailchimp::OPTION_CREATE_LIST) && SSV_General::eventsPluginActive()) {
+        $author  = User::getByID($event->post->post_author);
+        $newList = array(
+            'name'                => $event->getTitle(),
+            'contact'             => array(
+                'company'  => get_bloginfo(),
+                'address1' => $author->getMeta('address_street'),
+                'city'     => $author->getMeta('address_city'),
+                'state'    => $author->getMeta('address_state'),
+                'zip'      => $author->getMeta('address_zip'),
+                'country'  => $author->getMeta('address_country'),
+            ),
+            'permission_reminder' => 'You\'ve signed up for ' . $event->getTitle() . ' on ' . get_bloginfo() . '.',
+            'campaign_defaults'   => array(
+                'from_name'  => $author->display_name,
+                'from_email' => $author->user_email,
+                'subject'    => '',
+                'language'   => 'en',
+            ),
+            'email_type_option'   => false,
+        );
+
+        $apiKey       = get_option(SSV_MailChimp::OPTION_API_KEY);
+        $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
+        $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/';
+
+        $json = json_encode($newList);
+        $auth = base64_encode('user:' . $apiKey);
+        $args = array(
+            'headers' => array(
+                'Authorization' => 'Basic ' . $auth,
+            ),
+            'body'    => $json,
+        );
+        $listID = json_decode(wp_remote_post($url, $args)['body'], true)['id'];
+        update_post_meta($event->getID(), 'mailchimp_list', $listID);
+    }
     return null;
 }
 
-add_action(SSV_General::HOOK_USERS_SAVE_MEMBER, 'mp_ssv_mailchimp_update_member');
+add_action(SSV_General::HOOK_USERS_NEW_EVENT, 'mp_ssv_mailchimp_event_created');
 #endregion
 
 #region Register Scripts
@@ -93,12 +169,12 @@ function mp_ssv_mailchimp_remove_member($user_id)
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
 
-        $auth     = base64_encode('user:' . $apiKey);
-        $args     = array(
+        $auth = base64_encode('user:' . $apiKey);
+        $args = array(
             'headers' => array(
                 'Authorization' => 'Basic ' . $auth,
             ),
-            'method' => 'DELETE'
+            'method'  => 'DELETE',
         );
         wp_remote_request($url, $args)['body'];
 
