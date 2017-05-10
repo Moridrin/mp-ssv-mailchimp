@@ -10,7 +10,7 @@ if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
     if (isset($_POST['reset'])) {
         SSV_MailChimp::resetOptions();
     } else {
-        update_option(SSV_MailChimp::OPTION_CREATE_LIST, filter_var($_POST['email_on_registration'], FILTER_VALIDATE_BOOLEAN));
+        update_option(SSV_MailChimp::OPTION_CREATE_LIST, SSV_General::sanitize($_POST['email_on_registration'], 'boolean'));
     }
 }
 ?>
