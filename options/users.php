@@ -17,11 +17,11 @@ if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
     } elseif (isset($_POST['push_all_members'])) {
         foreach (get_users() as $user) {
             $user = new User($user);
-            mp_ssv_mailchimp_update_member($user);
+            mp_ssv_mailchimp_update_member($user, get_option(SSV_Mailchimp::OPTION_USERS_LIST));
         }
     } else {
         if ($_POST['users_list'] != -1) {
-            update_option(SSV_MailChimp::OPTION_USERS_LIST, SSV_General::sanitize($_POST['users_list']));
+            update_option(SSV_MailChimp::OPTION_USERS_LIST, SSV_General::sanitize($_POST['users_list'], 'text'));
         } else {
             delete_option(SSV_MailChimp::OPTION_USERS_LIST);
         }
@@ -31,8 +31,8 @@ if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
             $links[] = json_encode(
                 array(
                     'ID'        => $i,
-                    'fieldName' => SSV_General::sanitize($_POST['link_' . $i . '_field']),
-                    'tagName'   => SSV_General::sanitize($_POST['link_' . $i . '_tag']),
+                    'fieldName' => SSV_General::sanitize($_POST['link_' . $i . '_field'], 'text'),
+                    'tagName'   => SSV_General::sanitize($_POST['link_' . $i . '_tag'], 'text'),
                 )
             );
             $i++;
