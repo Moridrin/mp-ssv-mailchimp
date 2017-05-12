@@ -1,4 +1,4 @@
-=== SSV Users ===
+=== SSV MailChimp ===
 Contributors: moridrin
 Tags: ssv, mp-ssv, mailchimp, mail, members, user management, moridrin, Users, sportvereniging, sports club,
 Requires at least: 3.0.1
