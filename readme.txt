@@ -30,6 +30,10 @@ The best way is to add an issue on GitHub (https://github.com/Moridrin/ssv-mailc
 The best way is to add an issue on GitHub (https://github.com/Moridrin/ssv-mailchimp/issues). But you can also send an email to J.Berkvens@Moridrin.com (the lead developer).
 
 == Changelog ==
+= 3.1.4 =
+* Successful Code Inspection
+* Add Registrants to List
+
 = 3.1.2 =
 * Create List on Event Create
 * Add Registrants to List
