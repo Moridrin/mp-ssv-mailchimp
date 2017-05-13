@@ -11,10 +11,10 @@ SSV MailChimp is a plugin that allows you to connect other SSV plugins to MailCh
 
 == Description ==
 SSV MailChimp is a plugin that allows you to link other SSV plugins to MailChimp. With this plugin you can:
- - Create lists for event registrants (requires SSV Events)
- - Create members in list on user registration (requires SSV Users)
- - Update user meta to MailChimp Merge Fields (requires SSV Users).
- - Etc.
+* Create lists for event registrants (requires SSV Events)
+* Create members in list on user registration (requires SSV Users)
+* Update user meta to MailChimp Merge Fields (requires SSV Users).
+* Etc.
 This plugin is fully compatible with the SSV library which can add functionality like: Users, Events, etc.
 
 == Installation ==
