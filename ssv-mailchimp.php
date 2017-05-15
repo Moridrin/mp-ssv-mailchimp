@@ -15,17 +15,16 @@ namespace mp_ssv_mailchimp;
 if (!defined('ABSPATH')) {
     exit;
 }
+global $wpdb;
+define('SSV_MAILCHIMP_PATH', plugin_dir_path(__FILE__));
+define('SSV_MAILCHIMP_URL', plugins_url() . '/ssv-mailchimp/');
+define('SSV_MAILCHIMP_CUSTOM_FIELDS_TABLE', $wpdb->prefix . "ssv_mailchimp_custom_fields");
 
 require_once 'general/general.php';
 require_once 'functions.php';
 require_once "options/options.php";
 
 #region Class
-global $wpdb;
-define('SSV_MAILCHIMP_PATH', plugin_dir_path(__FILE__));
-define('SSV_MAILCHIMP_URL', plugins_url() . '/ssv-mailchimp/');
-define('SSV_MAILCHIMP_CUSTOM_FIELDS_TABLE', $wpdb->prefix . "ssv_mailchimp_custom_fields");
-
 class SSV_MailChimp
 {
     const PATH = SSV_MAILCHIMP_PATH;

@@ -8,6 +8,7 @@ use mp_ssv_mailchimp\SSV_MailChimp;
 use mp_ssv_users\SSV_Users;
 
 register_activation_hook(__FILE__, 'mp_ssv_general_register_plugin');
+register_activation_hook(SSV_MAILCHIMP_PATH . 'ssv-mailchimp.php', 'mp_ssv_general_register_plugin');
 #endregion
 
 #region Update Member From User
