@@ -43,44 +43,42 @@ function mp_ssv_mailchimp_update_member_from_registration($registration)
  */
 function mp_ssv_mailchimp_update_member($user, $listID)
 {
-    if (SSV_General::usersPluginActive()) {
-        $mailchimpMember = array();
-        $mergeFields     = array();
-        $links           = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
+    $mailchimpMember = array();
+    $mergeFields     = array();
+    $links           = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
+    foreach ($links as $link) {
+        $link                            = json_decode($link, true);
+        $mailchimpMergeTag               = strtoupper($link["tagName"]);
+        $memberField                     = $link["fieldName"];
+        $value                           = $user->getMeta($memberField);
+        $mergeFields[$mailchimpMergeTag] = $value;
+    }
+    $mailchimpMember["email_address"] = $user->user_email;
+    $mailchimpMember["status"]        = "subscribed";
+    $mailchimpMember["merge_fields"]  = $mergeFields;
+
+    $apiKey       = get_option(SSV_MailChimp::OPTION_API_KEY);
+    $memberId     = md5(strtolower($mailchimpMember['email_address']));
+    $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
+    $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
+
+    $json     = json_encode($mailchimpMember);
+    $auth     = base64_encode('user:' . $apiKey);
+    $args     = array(
+        'headers' => array(
+            'Authorization' => 'Basic ' . $auth,
+        ),
+        'body'    => $json,
+        'method'  => 'PUT',
+    );
+    $response = json_decode(wp_remote_request($url, $args)['body'], true);
+    if (array_key_exists('merge_fields', $response)) {
         foreach ($links as $link) {
             $link                            = json_decode($link, true);
             $mailchimpMergeTag               = strtoupper($link["tagName"]);
             $memberField                     = $link["fieldName"];
             $value                           = $user->getMeta($memberField);
             $mergeFields[$mailchimpMergeTag] = $value;
-        }
-        $mailchimpMember["email_address"] = $user->user_email;
-        $mailchimpMember["status"]        = "subscribed";
-        $mailchimpMember["merge_fields"]  = $mergeFields;
-
-        $apiKey       = get_option(SSV_MailChimp::OPTION_API_KEY);
-        $memberId     = md5(strtolower($mailchimpMember['email_address']));
-        $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
-        $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
-
-        $json     = json_encode($mailchimpMember);
-        $auth     = base64_encode('user:' . $apiKey);
-        $args     = array(
-            'headers' => array(
-                'Authorization' => 'Basic ' . $auth,
-            ),
-            'body'    => $json,
-            'method'  => 'PUT',
-        );
-        $response = json_decode(wp_remote_request($url, $args)['body'], true);
-        if (array_key_exists('merge_fields', $response)) {
-            foreach ($links as $link) {
-                $link                            = json_decode($link, true);
-                $mailchimpMergeTag               = strtoupper($link["tagName"]);
-                $memberField                     = $link["fieldName"];
-                $value                           = $user->getMeta($memberField);
-                $mergeFields[$mailchimpMergeTag] = $value;
-            }
         }
     }
 }
@@ -123,9 +121,9 @@ function mp_ssv_mailchimp_event_created($event)
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/';
 
-        $json = json_encode($newList);
-        $auth = base64_encode('user:' . $apiKey);
-        $args = array(
+        $json   = json_encode($newList);
+        $auth   = base64_encode('user:' . $apiKey);
+        $args   = array(
             'headers' => array(
                 'Authorization' => 'Basic ' . $auth,
             ),
@@ -143,13 +141,26 @@ add_action(SSV_General::HOOK_USERS_NEW_EVENT, 'mp_ssv_mailchimp_event_created');
 #region Register Scripts
 function mp_ssv_mailchimp_admin_scripts()
 {
-    if (SSV_General::usersPluginActive()) {
-        wp_enqueue_script('mp-ssv-merge-tag-selector', SSV_MailChimp::URL . '/js/mp-ssv-merge-tag-selector.js', array('jquery'));
+    wp_enqueue_script('mp-ssv-merge-tag-selector', SSV_MailChimp::URL . '/js/mp-ssv-merge-tag-selector.js', array('jquery'));
+    if (SSV_General::usersPluginActive() && get_option(SSV_MailChimp::OPTION_CREATE_LIST)) {
         wp_localize_script(
             'mp-ssv-merge-tag-selector',
             'merge_tag_settings',
             array(
                 'field_options' => array_values(SSV_Users::getInputFieldNames()),
+                'tag_options'   => SSV_MailChimp::getMergeFields(get_option(SSV_MailChimp::OPTION_USERS_LIST)),
+            )
+        );
+    } else {
+        global $wpdb;
+        $table  = $wpdb->usermeta;
+        $fields = $wpdb->get_results("SELECT meta_key FROM $table");
+        $fields = array_column($fields, 'meta_key');
+        wp_localize_script(
+            'mp-ssv-merge-tag-selector',
+            'merge_tag_settings',
+            array(
+                'field_options' => $fields,
                 'tag_options'   => SSV_MailChimp::getMergeFields(get_option(SSV_MailChimp::OPTION_USERS_LIST)),
             )
         );
@@ -201,7 +212,7 @@ function mp_ssv_mailchimp_update_settings_notification()
     if (empty(get_option(SSV_MailChimp::OPTION_USERS_LIST)) && !get_option(SSV_MailChimp::OPTION_IGNORE_USERS_LIST_MESSAGE)) {
         ?>
         <div class="update-nag notice">
-            <p>You still need to set the users list (without this, the users will not be synced with MailChimp.</p>
+            <p>You still need to set the users list (without this, the users will not be synced with MailChimp).</p>
             <p><a href="/wp-admin/admin.php?page=ssv-mailchimp-settings&tab=users">Set Now</a></p>
             <p><a href="/wp-admin/admin.php?page=ssv-mailchimp-settings&tab=users&action=ignore_message">Dismiss</a></p>
         </div>

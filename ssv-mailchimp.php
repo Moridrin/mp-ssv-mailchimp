@@ -35,6 +35,7 @@ class SSV_MailChimp
     const OPTION_USERS_LIST = 'ssv_mailchimp__users_list';
     const OPTION_MERGE_TAG_LINKS = 'ssv_mailchimp__merge_tag_links';
     const OPTION_CREATE_LIST = 'ssv_mailchimp__create_list';
+    const OPTION_SHOW_ALL_META_KEYS = 'ssv_mailchimp__option_show_all_meta_keys';
     const OPTION_IGNORE_USERS_LIST_MESSAGE = 'ssv_mailchimp__ignore_users_list_message';
 
     const ADMIN_REFERER_OPTIONS = 'ssv_mailchimp__admin_referer_options';
@@ -52,6 +53,7 @@ class SSV_MailChimp
         delete_option(self::OPTION_MERGE_TAG_LINKS);
         delete_option(self::OPTION_CREATE_LIST);
         delete_option(self::OPTION_IGNORE_USERS_LIST_MESSAGE);
+        update_option(self::OPTION_SHOW_ALL_META_KEYS, false);
     }
 
     #endregion

@@ -25,8 +25,10 @@ if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
         } else {
             delete_option(SSV_MailChimp::OPTION_USERS_LIST);
         }
+        $showAllKeys = isset($_POST['show_all_meta_keys']) ? SSV_General::sanitize($_POST['show_all_meta_keys'], 'boolean') : false;
+        update_option(SSV_MailChimp::OPTION_SHOW_ALL_META_KEYS, $showAllKeys);
         $links = array();
-        $i = 1;
+        $i     = 1;
         while (isset($_POST['link_' . $i . '_tag'])) {
             $links[] = json_encode(
                 array(
@@ -56,6 +58,18 @@ $links = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
                 </select>
             </td>
         </tr>
+        <?php if (SSV_General::usersPluginActive()): ?>
+            <tr valign="top">
+                <th scope="row">Show All Meta Keys</th>
+                <td>
+                    <label>
+                        <input type="hidden" name="show_all_meta_keys" value="false"/>
+                        <input type="checkbox" name="show_all_meta_keys" value="true" <?= get_option(SSV_MailChimp::OPTION_SHOW_ALL_META_KEYS) ? 'checked' : '' ?> />
+                        Show all the meta keys.
+                    </label>
+                </td>
+            </tr>
+        <?php endif; ?>
     </table>
     <?php if (!empty(get_option(SSV_MailChimp::OPTION_USERS_LIST, ''))): ?>
         <div style="overflow-x: auto;">
