@@ -13,14 +13,14 @@ register_activation_hook(SSV_MAILCHIMP_PATH . 'ssv-mailchimp.php', 'mp_ssv_gener
 
 #region Update Member From User
 /**
- * @param User $user
+ * @param User|int $user
  */
 function mp_ssv_mailchimp_update_member_from_user($user)
 {
+    $user = $user instanceof User ? $user : User::getByID($user);
     $listID = get_option(SSV_MailChimp::OPTION_USERS_LIST);
     mp_ssv_mailchimp_update_member($user, $listID);
 }
-
 #endregion
 
 #region Update Member From Registration
@@ -83,6 +83,7 @@ function mp_ssv_mailchimp_update_member($user, $listID)
     }
 }
 
+add_action('user_register', 'mp_ssv_mailchimp_update_member_from_user');
 add_action(SSV_General::HOOK_USERS_SAVE_MEMBER, 'mp_ssv_mailchimp_update_member_from_user');
 add_action(SSV_General::HOOK_EVENTS_NEW_REGISTRATION, 'mp_ssv_mailchimp_update_member_from_registration');
 #endregion
@@ -173,25 +174,22 @@ add_action('admin_enqueue_scripts', 'mp_ssv_mailchimp_admin_scripts');
 #region Delete Member
 function mp_ssv_mailchimp_remove_member($user_id)
 {
-    if (SSV_General::usersPluginActive()) {
-        $member       = User::getByID($user_id);
-        $apiKey       = get_option('ssv_mailchimp_api_key');
-        $listID       = get_option('mailchimp_member_sync_list_id');
-        $memberId     = md5(strtolower($member->user_email));
-        $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
-        $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
+    $member       = User::getByID($user_id);
+    $apiKey       = get_option(SSV_Mailchimp::OPTION_API_KEY);
+    $listID       = get_option(SSV_Mailchimp::OPTION_USERS_LIST);
+    $memberId     = md5(strtolower($member->user_email));
+    $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
+    $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
 
-        $auth = base64_encode('user:' . $apiKey);
-        $args = array(
-            'headers' => array(
-                'Authorization' => 'Basic ' . $auth,
-            ),
-            'method'  => 'DELETE',
-        );
-        wp_remote_request($url, $args)['body'];
+    $auth = base64_encode('user:' . $apiKey);
+    $args = array(
+        'headers' => array(
+            'Authorization' => 'Basic ' . $auth,
+        ),
+        'method'  => 'DELETE',
+    );
+    wp_remote_request($url, $args);
 
-        return $user_id;
-    }
     return $user_id;
 }
 
