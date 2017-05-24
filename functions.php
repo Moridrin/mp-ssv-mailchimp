@@ -23,6 +23,18 @@ function mp_ssv_mailchimp_update_member_from_user($user)
 }
 #endregion
 
+#region Update Member From User
+/**
+ * @param User|int $user
+ */
+function mp_ssv_mailchimp_register_member_from_user($user)
+{
+    $user = $user instanceof User ? $user : User::getByID($user);
+    $listID = get_option(SSV_MailChimp::OPTION_USERS_LIST);
+    mp_ssv_mailchimp_update_member($user, $listID, true);
+}
+#endregion
+
 #region Update Member From Registration
 /**
  * @param Registration $registration
@@ -41,23 +53,28 @@ function mp_ssv_mailchimp_update_member_from_registration($registration)
  * @param User   $user
  * @param string $listID
  */
-function mp_ssv_mailchimp_update_member($user, $listID)
+function mp_ssv_mailchimp_update_member($user, $listID, $createOnly = false)
 {
     $mailchimpMember = array();
     $mergeFields     = array();
-    $links           = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
-    foreach ($links as $link) {
-        $link                            = json_decode($link, true);
-        $mailchimpMergeTag               = strtoupper($link["tagName"]);
-        $memberField                     = $link["fieldName"];
-        $value                           = $user->getMeta($memberField);
-        $mergeFields[$mailchimpMergeTag] = $value;
+    if (!$createOnly) {
+        $links = get_option(SSV_MailChimp::OPTION_MERGE_TAG_LINKS, array());
+        foreach ($links as $link) {
+            $link                            = json_decode($link, true);
+            $mailchimpMergeTag               = strtoupper($link["tagName"]);
+            $memberField                     = $link["fieldName"];
+            $value                           = $user->getMeta($memberField);
+            $mergeFields[$mailchimpMergeTag] = $value;
+        }
     }
     $mailchimpMember["email_address"] = $user->user_email;
     $mailchimpMember["status"]        = "subscribed";
     $mailchimpMember["merge_fields"]  = $mergeFields;
 
     $apiKey       = get_option(SSV_MailChimp::OPTION_API_KEY);
+    if (empty($apiKey)) {
+        return;
+    }
     $memberId     = md5(strtolower($mailchimpMember['email_address']));
     $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
     $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
@@ -71,19 +88,10 @@ function mp_ssv_mailchimp_update_member($user, $listID)
         'body'    => $json,
         'method'  => 'PUT',
     );
-    $response = json_decode(wp_remote_request($url, $args)['body'], true);
-    if (array_key_exists('merge_fields', $response)) {
-        foreach ($links as $link) {
-            $link                            = json_decode($link, true);
-            $mailchimpMergeTag               = strtoupper($link["tagName"]);
-            $memberField                     = $link["fieldName"];
-            $value                           = $user->getMeta($memberField);
-            $mergeFields[$mailchimpMergeTag] = $value;
-        }
-    }
+    wp_remote_request($url, $args);
 }
 
-add_action('user_register', 'mp_ssv_mailchimp_update_member_from_user');
+add_action('user_register', 'mp_ssv_mailchimp_register_member_from_user');
 add_action(SSV_General::HOOK_USERS_SAVE_MEMBER, 'mp_ssv_mailchimp_update_member_from_user');
 add_action(SSV_General::HOOK_EVENTS_NEW_REGISTRATION, 'mp_ssv_mailchimp_update_member_from_registration');
 #endregion
@@ -119,6 +127,9 @@ function mp_ssv_mailchimp_event_created($event)
         );
 
         $apiKey       = get_option(SSV_MailChimp::OPTION_API_KEY);
+        if (empty($apiKey)) {
+            return;
+        }
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/';
 
@@ -176,6 +187,9 @@ function mp_ssv_mailchimp_remove_member($user_id)
 {
     $member       = User::getByID($user_id);
     $apiKey       = get_option(SSV_Mailchimp::OPTION_API_KEY);
+    if (empty($apiKey)) {
+        return $user_id;
+    }
     $listID       = get_option(SSV_Mailchimp::OPTION_USERS_LIST);
     $memberId     = md5(strtolower($member->user_email));
     $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
