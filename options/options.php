@@ -23,9 +23,7 @@ function ssv_mailchimp_settings_page()
         <h1>Users Options</h1>
         <h2 class="nav-tab-wrapper">
             <a href="?page=<?= $_GET['page'] ?>&tab=general" class="nav-tab <?= SSV_General::currentNavTab('general', $active_tab) ?>">General</a>
-            <?php if (SSV_General::usersPluginActive() && !$disabled): ?>
-                <a href="?page=<?= $_GET['page'] ?>&tab=users" class="nav-tab <?= SSV_General::currentNavTab('users', $active_tab) ?>">Users</a>
-            <?php endif; ?>
+            <a href="?page=<?= $_GET['page'] ?>&tab=users" class="nav-tab <?= SSV_General::currentNavTab('users', $active_tab) ?>">Users</a>
             <?php if (SSV_General::eventsPluginActive() && !$disabled): ?>
                 <a href="?page=<?= $_GET['page'] ?>&tab=events" class="nav-tab <?= SSV_General::currentNavTab('events', $active_tab) ?>">Events</a>
             <?php endif; ?>

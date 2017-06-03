@@ -3,7 +3,7 @@
  * Plugin Name: SSV MailChimp
  * Plugin URI: http://bosso.nl/ssv-mailchimp/
  * Description: SSV MailChimp is an add-on for both the SSV Events and the SSV Frontend Members plugin.
- * Version: 3.1.0
+ * Version: 3.2.0
  * Author: moridrin
  * Author URI: http://nl.linkedin.com/in/jberkvens/
  * License: WTFPL
@@ -15,17 +15,16 @@ namespace mp_ssv_mailchimp;
 if (!defined('ABSPATH')) {
     exit;
 }
+global $wpdb;
+define('SSV_MAILCHIMP_PATH', plugin_dir_path(__FILE__));
+define('SSV_MAILCHIMP_URL', plugins_url() . '/ssv-mailchimp/');
+define('SSV_MAILCHIMP_CUSTOM_FIELDS_TABLE', $wpdb->prefix . "ssv_mailchimp_custom_fields");
 
 require_once 'general/general.php';
 require_once 'functions.php';
 require_once "options/options.php";
 
 #region Class
-global $wpdb;
-define('SSV_MAILCHIMP_PATH', plugin_dir_path(__FILE__));
-define('SSV_MAILCHIMP_URL', plugins_url() . '/ssv-mailchimp/');
-define('SSV_MAILCHIMP_CUSTOM_FIELDS_TABLE', $wpdb->prefix . "ssv_mailchimp_custom_fields");
-
 class SSV_MailChimp
 {
     const PATH = SSV_MAILCHIMP_PATH;
@@ -36,6 +35,7 @@ class SSV_MailChimp
     const OPTION_USERS_LIST = 'ssv_mailchimp__users_list';
     const OPTION_MERGE_TAG_LINKS = 'ssv_mailchimp__merge_tag_links';
     const OPTION_CREATE_LIST = 'ssv_mailchimp__create_list';
+    const OPTION_SHOW_ALL_META_KEYS = 'ssv_mailchimp__option_show_all_meta_keys';
     const OPTION_IGNORE_USERS_LIST_MESSAGE = 'ssv_mailchimp__ignore_users_list_message';
 
     const ADMIN_REFERER_OPTIONS = 'ssv_mailchimp__admin_referer_options';
@@ -53,6 +53,7 @@ class SSV_MailChimp
         delete_option(self::OPTION_MERGE_TAG_LINKS);
         delete_option(self::OPTION_CREATE_LIST);
         delete_option(self::OPTION_IGNORE_USERS_LIST_MESSAGE);
+        update_option(self::OPTION_SHOW_ALL_META_KEYS, false);
     }
 
     #endregion
@@ -65,18 +66,19 @@ class SSV_MailChimp
         }
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists';
-        $ch           = curl_init($url);
-        curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $curl_results = json_decode(curl_exec($ch), true)["lists"];
-        curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        $curl_results = is_array($curl_results) ? $curl_results : array();
-        return array_column($curl_results, 'name', 'id');
+
+        $auth     = base64_encode('user:' . $apiKey);
+        $args     = array(
+            'headers' => array(
+                'Authorization' => 'Basic ' . $auth,
+            ),
+        );
+        $response = json_decode(wp_remote_get($url, $args)['body'], true);
+        if (array_key_exists('lists', $response)) {
+            return array_column($response['lists'], 'name', 'id');
+        } else {
+            return array();
+        }
     }
 
     public static function getMergeFields($listID)
@@ -91,18 +93,19 @@ class SSV_MailChimp
         }
         $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
         $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/merge-fields?count=' . $maxRequest;
-        $ch           = curl_init($url);
-        curl_setopt($ch, CURLOPT_USERPWD, 'user:' . $apiKey);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        $curl_results = json_decode(curl_exec($ch), true)["merge_fields"];
-        curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        $curl_results = is_array($curl_results) ? $curl_results : array();
-        return array_column($curl_results, 'tag');
+
+        $auth     = base64_encode('user:' . $apiKey);
+        $args     = array(
+            'headers' => [
+                'Authorization' => 'Basic ' . $auth,
+            ],
+        );
+        $response = json_decode(wp_remote_get($url, $args)['body'], true);
+        if (array_key_exists('merge_fields', $response)) {
+            return array_column($response['merge_fields'], 'tag');
+        } else {
+            return array();
+        }
     }
 }
 #endregion

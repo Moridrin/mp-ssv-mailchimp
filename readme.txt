@@ -1,4 +1,4 @@
-=== SSV Users ===
+=== SSV MailChimp ===
 Contributors: moridrin
 Tags: ssv, mp-ssv, mailchimp, mail, members, user management, moridrin, Users, sportvereniging, sports club,
 Requires at least: 3.0.1
@@ -11,10 +11,10 @@ SSV MailChimp is a plugin that allows you to connect other SSV plugins to MailCh
 
 == Description ==
 SSV MailChimp is a plugin that allows you to link other SSV plugins to MailChimp. With this plugin you can:
- - Create lists for event registrants (requires SSV Events)
- - Create members in list on user registration (requires SSV Users)
- - Update user meta to MailChimp Merge Fields (requires SSV Users).
- - Etc.
+* Create lists for event registrants (requires SSV Events)
+* Create members in list on user registration (requires SSV Users)
+* Update user meta to MailChimp Merge Fields (requires SSV Users).
+* Etc.
 This plugin is fully compatible with the SSV library which can add functionality like: Users, Events, etc.
 
 == Installation ==
@@ -30,6 +30,36 @@ The best way is to add an issue on GitHub (https://github.com/Moridrin/ssv-mailc
 The best way is to add an issue on GitHub (https://github.com/Moridrin/ssv-mailchimp/issues). But you can also send an email to J.Berkvens@Moridrin.com (the lead developer).
 
 == Changelog ==
+= 3.2.0 =
+* Updating name fields disabled (due to possible bugs)
+* Not trying to make requests without API Key
+* Register only functionality (without metadata links)
+* Successful Code Inspection
+* Add Registrants to List
+* Create List on Event Create
+* Add Registrants to List
+* curl replaced with wp_remote_*
+* Push all to MailChimp function added
+
+= 3.1.6 =
+* Updating name fields disabled (due to possible bugs)
+
+= 3.1.5 =
+* Not trying to make requests without API Key
+* Register only functionality (without metadata links)
+
+= 3.1.4 =
+* Successful Code Inspection
+* Add Registrants to List
+
+= 3.1.2 =
+* Create List on Event Create
+* Add Registrants to List
+
+= 3.1.1 =
+* curl replaced with wp_remote_*
+* Push all to MailChimp function added
+
 = 3.1.0 =
 * Namespaces added
 

@@ -16,8 +16,8 @@ if (SSV_General::isValidPOST(SSV_MailChimp::ADMIN_REFERER_OPTIONS)) {
     if (isset($_POST['reset'])) {
         SSV_MailChimp::resetOptions();
     } else {
-        update_option(SSV_MailChimp::OPTION_API_KEY, SSV_General::sanitize($_POST['api_key']));
-        update_option(SSV_MailChimp::OPTION_MAX_REQUEST_COUNT, SSV_General::sanitize($_POST['max_request']));
+        update_option(SSV_MailChimp::OPTION_API_KEY, SSV_General::sanitize($_POST['api_key'], 'text'));
+        update_option(SSV_MailChimp::OPTION_MAX_REQUEST_COUNT, SSV_General::sanitize($_POST['max_request'], 'int'));
     }
 }
 ?>
