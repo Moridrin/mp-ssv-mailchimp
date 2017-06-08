@@ -17,10 +17,11 @@ register_activation_hook(SSV_MAILCHIMP_PATH . 'ssv-mailchimp.php', 'mp_ssv_gener
  */
 function mp_ssv_mailchimp_update_member_from_user($user)
 {
-    $user = $user instanceof User ? $user : User::getByID($user);
+    $user   = $user instanceof User ? $user : User::getByID($user);
     $listID = get_option(SSV_MailChimp::OPTION_USERS_LIST);
     mp_ssv_mailchimp_update_member($user, $listID);
 }
+
 #endregion
 
 #region Update Member From User
@@ -29,10 +30,11 @@ function mp_ssv_mailchimp_update_member_from_user($user)
  */
 function mp_ssv_mailchimp_register_member_from_user($user)
 {
-    $user = $user instanceof User ? $user : User::getByID($user);
+    $user   = $user instanceof User ? $user : User::getByID($user);
     $listID = get_option(SSV_MailChimp::OPTION_USERS_LIST);
     mp_ssv_mailchimp_update_member($user, $listID, true);
 }
+
 #endregion
 
 #region Update Member From Registration
@@ -71,7 +73,7 @@ function mp_ssv_mailchimp_update_member($user, $listID, $createOnly = false)
     $mailchimpMember["status"]        = "subscribed";
     $mailchimpMember["merge_fields"]  = $mergeFields;
 
-    $apiKey       = get_option(SSV_MailChimp::OPTION_API_KEY);
+    $apiKey = get_option(SSV_MailChimp::OPTION_API_KEY);
     if (empty($apiKey)) {
         return;
     }
@@ -79,9 +81,9 @@ function mp_ssv_mailchimp_update_member($user, $listID, $createOnly = false)
     $memberCenter = substr($apiKey, strpos($apiKey, '-') + 1);
     $url          = 'https://' . $memberCenter . '.api.mailchimp.com/3.0/lists/' . $listID . '/members/' . $memberId;
 
-    $json     = json_encode($mailchimpMember);
-    $auth     = base64_encode('user:' . $apiKey);
-    $args     = array(
+    $json = json_encode($mailchimpMember);
+    $auth = base64_encode('user:' . $apiKey);
+    $args = array(
         'headers' => array(
             'Authorization' => 'Basic ' . $auth,
         ),
@@ -126,7 +128,7 @@ function mp_ssv_mailchimp_event_created($event)
             'email_type_option'   => false,
         );
 
-        $apiKey       = get_option(SSV_MailChimp::OPTION_API_KEY);
+        $apiKey = get_option(SSV_MailChimp::OPTION_API_KEY);
         if (empty($apiKey)) {
             return;
         }
@@ -185,8 +187,8 @@ add_action('admin_enqueue_scripts', 'mp_ssv_mailchimp_admin_scripts');
 #region Delete Member
 function mp_ssv_mailchimp_remove_member($user_id)
 {
-    $member       = User::getByID($user_id);
-    $apiKey       = get_option(SSV_Mailchimp::OPTION_API_KEY);
+    $member = User::getByID($user_id);
+    $apiKey = get_option(SSV_Mailchimp::OPTION_API_KEY);
     if (empty($apiKey)) {
         return $user_id;
     }
